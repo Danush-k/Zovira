@@ -47,6 +47,10 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
 
     long countBySellerIdAndStatus(Long sellerId, ProductStatus status);
 
+    @Modifying
+    @Query(value = "UPDATE products SET sold_count = GREATEST(sold_count + :delta, 0) WHERE id = :id", nativeQuery = true)
+    int adjustSoldCount(@Param("id") Long productId, @Param("delta") int delta);
+
     /** Recomputes the denormalized stock total from active variants' inventory. */
     @Modifying
     @Query(value = """
