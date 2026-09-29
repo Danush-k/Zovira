@@ -145,6 +145,8 @@ zovira:
     login:
       max-failed-attempts: 5
       lock-duration: 15m
+    password:
+      bcrypt-strength: ${BCRYPT_STRENGTH:12}
   redis:
     enabled: ${REDIS_ENABLED:false}
   storage:
