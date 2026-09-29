@@ -36,7 +36,7 @@ defineExpose({ focusSearch })
         </p>
         <nav class="flex items-center gap-5" aria-label="Utility">
           <RouterLink to="/sell" class="hover:text-white">{{ $t('nav.sellOnZovira') }}</RouterLink>
-          <RouterLink to="/account" class="hover:text-white">{{ $t('nav.trackOrder') }}</RouterLink>
+          <RouterLink to="/account/orders" class="hover:text-white">{{ $t('nav.trackOrder') }}</RouterLink>
           <RouterLink to="/help" class="hover:text-white">{{ $t('nav.help') }}</RouterLink>
         </nav>
       </div>
