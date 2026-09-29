@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { MapPin, Menu, Search, ShoppingBag } from '@lucide/vue'
+import { ref } from 'vue'
+import { MapPin, Menu, ShoppingBag } from '@lucide/vue'
+import SearchBox from '@/components/search/SearchBox.vue'
 import BrandLogo from '@/components/brand/BrandLogo.vue'
 import AccountMenu from './AccountMenu.vue'
 import CategoryNav from './CategoryNav.vue'
@@ -11,22 +11,9 @@ import { useLocationStore } from '@/stores/location'
 defineProps<{ cartCount?: number }>()
 const emit = defineEmits<{ menu: [] }>()
 
-const router = useRouter()
-const route = useRoute()
 const location = useLocationStore()
-const query = ref(typeof route.query.q === 'string' ? route.query.q : '')
 const pincodeOpen = ref(false)
-const mobileSearch = ref<HTMLInputElement | null>(null)
-
-watch(
-  () => route.query.q,
-  (q) => (query.value = typeof q === 'string' ? q : ''),
-)
-
-function submit() {
-  const q = query.value.trim()
-  if (q) void router.push({ path: '/search', query: { q } })
-}
+const mobileSearch = ref<InstanceType<typeof SearchBox> | null>(null)
 
 function focusSearch() {
   window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -82,24 +69,7 @@ defineExpose({ focusSearch })
           </span>
         </button>
 
-        <form role="search" class="relative hidden flex-1 md:block" @submit.prevent="submit">
-          <label for="header-search" class="sr-only">{{ $t('common.search') }}</label>
-          <input
-            id="header-search"
-            v-model="query"
-            type="search"
-            autocomplete="off"
-            :placeholder="$t('common.searchPlaceholder')"
-            class="h-11 w-full rounded-xl border border-ink-200 bg-ink-50 pr-12 pl-4 text-[15px] placeholder:text-ink-400 hover:border-ink-300 focus:border-brand-500 focus:bg-white focus:ring-3 focus:ring-brand-500/15 focus:outline-none"
-          />
-          <button
-            type="submit"
-            class="absolute top-1 right-1 grid size-9 place-items-center rounded-lg bg-brand-700 text-white hover:bg-brand-800"
-            :aria-label="$t('common.search')"
-          >
-            <Search class="size-[18px]" />
-          </button>
-        </form>
+        <SearchBox input-id="header-search" class="hidden flex-1 md:block" />
 
         <nav class="ml-auto flex items-center gap-1" aria-label="Account">
           <AccountMenu />
@@ -123,20 +93,7 @@ defineExpose({ focusSearch })
       </div>
 
       <div class="container-page pb-3 md:hidden">
-        <form role="search" class="relative" @submit.prevent="submit">
-          <label for="mobile-search" class="sr-only">{{ $t('common.search') }}</label>
-          <Search class="pointer-events-none absolute top-1/2 left-3.5 size-[18px] -translate-y-1/2 text-ink-400" />
-          <input
-            id="mobile-search"
-            ref="mobileSearch"
-            v-model="query"
-            type="search"
-            autocomplete="off"
-            enterkeyhint="search"
-            :placeholder="$t('common.searchPlaceholder')"
-            class="h-11 w-full rounded-xl border border-ink-200 bg-ink-50 pr-4 pl-10 text-[15px] placeholder:text-ink-400 focus:border-brand-500 focus:bg-white focus:ring-3 focus:ring-brand-500/15 focus:outline-none"
-          />
-        </form>
+        <SearchBox ref="mobileSearch" input-id="mobile-search" variant="mobile" />
       </div>
     </div>
 
