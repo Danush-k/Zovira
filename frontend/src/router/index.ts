@@ -86,6 +86,24 @@ const router = createRouter({
               meta: { title: 'Your account' },
             },
             {
+              path: 'orders',
+              name: 'account-orders',
+              component: () => import('@/views/account/OrdersView.vue'),
+              meta: { title: 'Your orders' },
+            },
+            {
+              path: 'orders/:number',
+              name: 'account-order',
+              component: () => import('@/views/account/OrderDetailView.vue'),
+              meta: { title: 'Order details' },
+            },
+            {
+              path: 'returns',
+              name: 'account-returns',
+              component: () => import('@/views/account/ReturnsView.vue'),
+              meta: { title: 'Returns' },
+            },
+            {
               path: 'profile',
               name: 'account-profile',
               component: () => import('@/views/account/ProfileView.vue'),
