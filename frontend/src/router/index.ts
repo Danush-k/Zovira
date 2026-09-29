@@ -34,6 +34,20 @@ const router = createRouter({
       title: 'Verify email',
     }),
     {
+      path: '/seller',
+      component: () => import('@/views/seller/SellerLayout.vue'),
+      meta: { requiresAuth: true, roles: ['SELLER'] },
+      children: [
+        { path: '', name: 'seller', component: () => import('@/views/seller/SellerOverviewView.vue'), meta: { title: 'Seller dashboard' } },
+        { path: 'orders', name: 'seller-orders', component: () => import('@/views/seller/SellerOrdersView.vue'), meta: { title: 'Seller orders' } },
+        { path: 'returns', name: 'seller-returns', component: () => import('@/views/seller/SellerReturnsView.vue'), meta: { title: 'Seller returns' } },
+        { path: 'products', name: 'seller-products', component: () => import('@/views/seller/SellerProductsView.vue'), meta: { title: 'Your products' } },
+        { path: 'products/:id', name: 'seller-product-form', component: () => import('@/views/seller/SellerProductFormView.vue'), meta: { title: 'Edit product' } },
+        { path: 'inventory', name: 'seller-inventory', component: () => import('@/views/seller/SellerInventoryView.vue'), meta: { title: 'Inventory' } },
+        { path: 'profile', name: 'seller-profile', component: () => import('@/views/seller/SellerProfileView.vue'), meta: { title: 'Store profile' } },
+      ],
+    },
+    {
       path: '/',
       component: StorefrontLayout,
       children: [
@@ -67,6 +81,7 @@ const router = createRouter({
           component: () => import('@/views/WishlistView.vue'),
           meta: { title: 'Wishlist', requiresAuth: true },
         },
+        { path: 'sell', name: 'sell', component: () => import('@/views/SellView.vue'), meta: { title: 'Sell on Zovira' } },
         { path: 'brands', name: 'brands', component: () => import('@/views/BrandsView.vue'), meta: { title: 'Brands' } },
         {
           path: 'compare',
