@@ -87,6 +87,11 @@ public class User extends AuditableEntity {
         }
     }
 
+    public void clearLockout() {
+        failedLoginAttempts = 0;
+        lockedUntil = null;
+    }
+
     public void recordSuccessfulLogin(Instant now) {
         failedLoginAttempts = 0;
         lockedUntil = null;
