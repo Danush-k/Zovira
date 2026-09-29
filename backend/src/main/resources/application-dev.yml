@@ -1,0 +1,26 @@
+# Local development profile. Never used in deployed environments.
+spring:
+  jpa:
+    properties:
+      hibernate:
+        format_sql: true
+
+management:
+  tracing:
+    sampling:
+      probability: 1.0
+
+logging:
+  level:
+    com.zovira: DEBUG
+    org.hibernate.SQL: INFO
+
+zovira:
+  security:
+    jwt:
+      # Development-only fallback. Deployed environments must provide JWT_SECRET.
+      secret: ${JWT_SECRET:dev-only-zovira-jwt-secret-change-me-0123456789abcdef}
+    cookie:
+      secure: ${COOKIE_SECURE:false}
+  seed:
+    enabled: ${SEED_ENABLED:true}
