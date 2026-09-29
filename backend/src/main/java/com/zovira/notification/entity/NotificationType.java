@@ -1,0 +1,19 @@
+package com.zovira.notification.entity;
+
+public enum NotificationType {
+    ORDER_PLACED,
+    PAYMENT_CONFIRMED,
+    PAYMENT_FAILED,
+    ORDER_SHIPPED,
+    ORDER_OUT_FOR_DELIVERY,
+    ORDER_DELIVERED,
+    ORDER_CANCELLED,
+    RETURN_UPDATE,
+    REFUND_PROCESSED,
+    PRICE_DROP,
+    SELLER_UPDATE,
+    NEW_ORDER_FOR_SELLER,
+    QUESTION_ANSWERED,
+    PROMOTION,
+    ACCOUNT
+}
