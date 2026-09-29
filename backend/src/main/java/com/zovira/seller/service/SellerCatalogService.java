@@ -358,7 +358,7 @@ public class SellerCatalogService {
                 v.isActive());
     }
 
-    static SellerProductSummary toSummary(Product p) {
+    public static SellerProductSummary toSummary(Product p) {
         return new SellerProductSummary(p.getId(), p.getSlug(), p.getTitle(), p.primaryImageUrl(),
                 p.getCategory().getName(), p.getBrand() == null ? null : p.getBrand().getName(), p.getStatus().name(),
                 p.getMinPrice(), p.getMinMrp(), p.getTotalStock(),
