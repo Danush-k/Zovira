@@ -214,10 +214,6 @@ public class Product extends AuditableEntity {
         this.ratingCount = count;
     }
 
-    public void incrementSold(int quantity) {
-        this.soldCount += quantity;
-    }
-
     public Seller getSeller() {
         return seller;
     }

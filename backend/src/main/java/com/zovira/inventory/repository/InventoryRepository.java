@@ -19,7 +19,7 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
 
     List<Inventory> findByVariantIdIn(Collection<Long> variantIds);
 
-    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Modifying(flushAutomatically = true)
     @Query(value = """
             UPDATE inventory
                SET quantity_available = quantity_available - :qty,
@@ -30,7 +30,7 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
     int reserve(@Param("variantId") Long variantId, @Param("qty") int qty);
 
     /** Payment captured (or COD confirmed): reserved units become sold. */
-    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Modifying(flushAutomatically = true)
     @Query(value = """
             UPDATE inventory
                SET quantity_reserved = GREATEST(quantity_reserved - :qty, 0),
@@ -40,7 +40,7 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
     int commitReservation(@Param("variantId") Long variantId, @Param("qty") int qty);
 
     /** Unpaid order expired or cancelled before confirmation: return reserved units to sale. */
-    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Modifying(flushAutomatically = true)
     @Query(value = """
             UPDATE inventory
                SET quantity_available = quantity_available + LEAST(quantity_reserved, :qty),
@@ -51,7 +51,7 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
     int releaseReservation(@Param("variantId") Long variantId, @Param("qty") int qty);
 
     /** Cancelled after confirmation or returned: put sold units back into stock. */
-    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Modifying(flushAutomatically = true)
     @Query(value = """
             UPDATE inventory
                SET quantity_available = quantity_available + :qty,

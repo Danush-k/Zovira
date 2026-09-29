@@ -48,6 +48,18 @@ const router = createRouter({
         { path: 'c/:slug', name: 'category', component: () => import('@/views/SearchView.vue'), meta: { title: 'Shop' } },
         { path: 'brand/:slug', name: 'brand', component: () => import('@/views/SearchView.vue'), meta: { title: 'Brand' } },
         { path: 'store/:slug', name: 'store', component: () => import('@/views/SearchView.vue'), meta: { title: 'Store' } },
+        {
+          path: 'checkout',
+          name: 'checkout',
+          component: () => import('@/views/CheckoutView.vue'),
+          meta: { title: 'Checkout', requiresAuth: true },
+        },
+        {
+          path: 'order-confirmation/:number',
+          name: 'order-confirmation',
+          component: () => import('@/views/OrderConfirmationView.vue'),
+          meta: { title: 'Order confirmation', requiresAuth: true },
+        },
         { path: 'cart', name: 'cart', component: () => import('@/views/CartView.vue'), meta: { title: 'Cart' } },
         {
           path: 'wishlist',
