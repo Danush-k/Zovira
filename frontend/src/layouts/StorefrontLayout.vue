@@ -6,14 +6,29 @@ import MobileBottomNav from '@/components/layout/MobileBottomNav.vue'
 import MobileCategoryDrawer from '@/components/layout/MobileCategoryDrawer.vue'
 import CompareTray from '@/components/layout/CompareTray.vue'
 import { useCatalogStore } from '@/stores/catalog'
+import { useCartStore } from '@/stores/cart'
+import { useWishlistStore } from '@/stores/wishlist'
+import { useAuthStore } from '@/stores/auth'
 
 const catalog = useCatalogStore()
+const cart = useCartStore()
+const wishlist = useWishlistStore()
+const auth = useAuthStore()
 const header = ref<InstanceType<typeof AppHeader> | null>(null)
 const drawerOpen = ref(false)
 
 onMounted(() => {
   catalog.loadCategories().catch(() => undefined)
   void catalog.loadSettings()
+  void auth.init().then(() => {
+    cart.load().catch(() => undefined)
+    wishlist.load().catch(() => undefined)
+  })
+})
+
+auth.onChange((user) => {
+  void cart.onAuthChange(!!user)
+  wishlist.load().catch(() => undefined)
 })
 </script>
 
@@ -25,12 +40,12 @@ onMounted(() => {
     >
       Skip to content
     </a>
-    <AppHeader ref="header" @menu="drawerOpen = true" />
+    <AppHeader ref="header" :cart-count="cart.count" @menu="drawerOpen = true" />
     <main id="main" class="flex-1" tabindex="-1">
       <RouterView />
     </main>
     <AppFooter />
-    <MobileBottomNav @categories="drawerOpen = true" @search="header?.focusSearch()" />
+    <MobileBottomNav :cart-count="cart.count" @categories="drawerOpen = true" @search="header?.focusSearch()" />
     <MobileCategoryDrawer v-model:open="drawerOpen" />
     <CompareTray />
   </div>
