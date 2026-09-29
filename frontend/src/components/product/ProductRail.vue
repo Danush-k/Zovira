@@ -97,9 +97,7 @@ onBeforeUnmount(() => observer?.disconnect())
         :key="product.id"
         class="w-[46%] shrink-0 snap-start sm:w-[31%] md:w-[23%] lg:w-[calc((100%-5*1rem)/6)]"
       >
-        <ProductCard :product="product">
-          <template #action><slot name="card-action" :product="product" /></template>
-        </ProductCard>
+        <ProductCard :product="product" />
       </div>
     </div>
   </section>
