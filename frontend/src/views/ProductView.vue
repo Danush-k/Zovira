@@ -13,6 +13,7 @@ import VariantSelector from '@/components/product/VariantSelector.vue'
 import DeliveryEstimator from '@/components/product/DeliveryEstimator.vue'
 import SpecTable from '@/components/product/SpecTable.vue'
 import SellerCard from '@/components/product/SellerCard.vue'
+import PurchasePanel from '@/components/product/PurchasePanel.vue'
 import { catalogApi } from '@/services/catalog'
 import { isStatus } from '@/services/errors'
 import { useAsync } from '@/composables/useAsync'
@@ -152,6 +153,8 @@ function toggleCompare(p: ProductDetail) {
             </p>
             <p v-else class="font-semibold text-success">In stock</p>
           </div>
+
+          <PurchasePanel :product="product" :variant="variant" />
 
           <div class="mt-6 space-y-4">
             <DeliveryEstimator :cod-available="product.codAvailable" :price="variant?.price ?? 0" />

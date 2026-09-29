@@ -4,6 +4,7 @@ import { Box } from '@lucide/vue'
 import ZBadge from '@/components/ui/ZBadge.vue'
 import ZPrice from '@/components/ui/ZPrice.vue'
 import ZRatingPill from '@/components/ui/ZRatingPill.vue'
+import WishlistButton from './WishlistButton.vue'
 import type { ProductSummary } from '@/types/catalog'
 
 const props = withDefaults(defineProps<{ product: ProductSummary; eager?: boolean }>(), { eager: false })
@@ -55,7 +56,7 @@ const to = computed(() => `/p/${props.product.slug}`)
       </div>
     </RouterLink>
     <div class="absolute top-2 right-2">
-      <slot name="action" />
+      <WishlistButton :product-id="product.id" :variant-id="product.defaultVariantId" :title="product.title" />
     </div>
   </article>
 </template>
