@@ -44,6 +44,18 @@ const router = createRouter({
           component: () => import('@/views/ProductView.vue'),
           meta: { title: 'Product' },
         },
+        { path: 'search', name: 'search', component: () => import('@/views/SearchView.vue'), meta: { title: 'Search' } },
+        { path: 'c/:slug', name: 'category', component: () => import('@/views/SearchView.vue'), meta: { title: 'Shop' } },
+        { path: 'brand/:slug', name: 'brand', component: () => import('@/views/SearchView.vue'), meta: { title: 'Brand' } },
+        { path: 'store/:slug', name: 'store', component: () => import('@/views/SearchView.vue'), meta: { title: 'Store' } },
+        { path: 'cart', name: 'cart', component: () => import('@/views/CartView.vue'), meta: { title: 'Cart' } },
+        {
+          path: 'wishlist',
+          name: 'wishlist',
+          component: () => import('@/views/WishlistView.vue'),
+          meta: { title: 'Wishlist', requiresAuth: true },
+        },
+        { path: 'brands', name: 'brands', component: () => import('@/views/BrandsView.vue'), meta: { title: 'Brands' } },
         {
           path: 'compare',
           name: 'compare',

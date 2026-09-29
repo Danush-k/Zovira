@@ -36,6 +36,7 @@ public class SecurityConfig {
             "/api/v1/recommendations/public/**",
             "/api/v1/settings/public",
             "/api/v1/payments/config",
+            "/api/v1/coupons/offers",
     };
 
     private static final String[] PUBLIC_POST = {
@@ -47,6 +48,7 @@ public class SecurityConfig {
             "/api/v1/auth/forgot-password",
             "/api/v1/auth/reset-password",
             "/api/v1/payments/webhooks/**",
+            "/api/v1/cart/preview",
     };
 
     @Bean
