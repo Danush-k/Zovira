@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { Search, ShoppingBag, UserRound } from '@lucide/vue'
+import { Search, ShoppingBag } from '@lucide/vue'
 import BrandLogo from '@/components/brand/BrandLogo.vue'
+import AccountMenu from './AccountMenu.vue'
 
 const router = useRouter()
 const query = ref('')
@@ -55,13 +56,7 @@ function submit() {
         </form>
 
         <nav class="ml-auto flex items-center gap-1" aria-label="Account">
-          <RouterLink
-            to="/login"
-            class="flex items-center gap-2 rounded-lg px-2.5 py-2 text-sm font-semibold text-ink-800 hover:bg-ink-50"
-          >
-            <UserRound class="size-5" stroke-width="1.75" />
-            <span class="hidden sm:inline">{{ $t('nav.signIn') }}</span>
-          </RouterLink>
+          <AccountMenu />
           <RouterLink
             to="/cart"
             class="flex items-center gap-2 rounded-lg px-2.5 py-2 text-sm font-semibold text-ink-800 hover:bg-ink-50"
