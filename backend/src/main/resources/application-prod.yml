@@ -1,0 +1,30 @@
+# Production profile. All secrets must come from the environment; there are no fallbacks.
+spring:
+  jpa:
+    show-sql: false
+
+server:
+  error:
+    whitelabel:
+      enabled: false
+
+springdoc:
+  swagger-ui:
+    enabled: ${SWAGGER_ENABLED:false}
+  api-docs:
+    enabled: ${SWAGGER_ENABLED:false}
+
+logging:
+  structured:
+    format:
+      console: ecs
+  level:
+    root: INFO
+    com.zovira: INFO
+
+zovira:
+  security:
+    cookie:
+      secure: true
+  seed:
+    enabled: ${SEED_ENABLED:false}

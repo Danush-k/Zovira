@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /account
+Disallow: /checkout
+Disallow: /seller
+Disallow: /admin
+Allow: /
