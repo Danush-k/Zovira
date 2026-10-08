@@ -1,10 +1,12 @@
-<script setup lang="ts">
-import BrandMark from './BrandMark.vue'
-
-withDefaults(defineProps<{ inverse?: boolean; compact?: boolean; size?: 'sm' | 'md' | 'lg' }>(), { size: 'md' })
-
-const markSizes = { sm: 'size-7', md: 'size-8', lg: 'size-10' }
-const textSizes = { sm: 'text-[19px]', md: 'text-[22px]', lg: 'text-[28px]' }
+<script setup>
+import BrandMark from './BrandMark.vue';
+defineProps({
+    inverse: { type: Boolean, default: false },
+    compact: { type: Boolean, default: false },
+    size: { default: 'md' }
+});
+const markSizes = { sm: 'size-7', md: 'size-8', lg: 'size-10' };
+const textSizes = { sm: 'text-[19px]', md: 'text-[22px]', lg: 'text-[28px]' };
 </script>
 
 <template>

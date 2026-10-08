@@ -1,48 +1,44 @@
-<script setup lang="ts">
-import { onBeforeUnmount, ref } from 'vue'
-import { useRouter } from 'vue-router'
-
+<script setup>
+import { onBeforeUnmount, ref } from 'vue';
+import { useRouter } from 'vue-router';
 /** Thin top progress bar shown while lazily loaded routes and their guards resolve. */
-const router = useRouter()
-const visible = ref(false)
-const progress = ref(0)
-let timer: ReturnType<typeof setInterval> | undefined
-let showDelay: ReturnType<typeof setTimeout> | undefined
-
+const router = useRouter();
+const visible = ref(false);
+const progress = ref(0);
+let timer;
+let showDelay;
 function start() {
-  clearTimeout(showDelay)
-  clearInterval(timer)
-  progress.value = 8
-  showDelay = setTimeout(() => {
-    visible.value = true
-    timer = setInterval(() => {
-      progress.value = Math.min(90, progress.value + (90 - progress.value) * 0.12)
-    }, 120)
-  }, 120)
+    clearTimeout(showDelay);
+    clearInterval(timer);
+    progress.value = 8;
+    showDelay = setTimeout(() => {
+        visible.value = true;
+        timer = setInterval(() => {
+            progress.value = Math.min(90, progress.value + (90 - progress.value) * 0.12);
+        }, 120);
+    }, 120);
 }
-
 function done() {
-  clearTimeout(showDelay)
-  clearInterval(timer)
-  if (!visible.value) return
-  progress.value = 100
-  setTimeout(() => {
-    visible.value = false
-    progress.value = 0
-  }, 220)
+    clearTimeout(showDelay);
+    clearInterval(timer);
+    if (!visible.value)
+        return;
+    progress.value = 100;
+    setTimeout(() => {
+        visible.value = false;
+        progress.value = 0;
+    }, 220);
 }
-
-const removeBefore = router.beforeEach(() => start())
-const removeAfter = router.afterEach(() => done())
-const removeError = router.onError(() => done())
-
+const removeBefore = router.beforeEach(() => start());
+const removeAfter = router.afterEach(() => done());
+const removeError = router.onError(() => done());
 onBeforeUnmount(() => {
-  removeBefore()
-  removeAfter()
-  removeError()
-  clearInterval(timer)
-  clearTimeout(showDelay)
-})
+    removeBefore();
+    removeAfter();
+    removeError();
+    clearInterval(timer);
+    clearTimeout(showDelay);
+});
 </script>
 
 <template>

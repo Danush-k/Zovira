@@ -1,29 +1,23 @@
-<script setup lang="ts">
-import { computed, ref, useAttrs, useId, type Component } from 'vue'
-import { Eye, EyeOff } from '@lucide/vue'
-
-defineOptions({ inheritAttrs: false })
-
-const props = withDefaults(
-  defineProps<{
-    label?: string
-    hint?: string
-    error?: string | null
-    type?: string
-    icon?: Component
-    size?: 'md' | 'lg'
-    optional?: boolean
-  }>(),
-  { type: 'text', size: 'md' },
-)
-
-const model = defineModel<string | number | null>()
-const attrs = useAttrs()
-const autoId = useId()
-const id = computed(() => (attrs.id as string | undefined) ?? autoId)
-const showPassword = ref(false)
-const inputType = computed(() => (props.type === 'password' && showPassword.value ? 'text' : props.type))
-const describedBy = computed(() => (props.error ? `${id.value}-error` : props.hint ? `${id.value}-hint` : undefined))
+<script setup>
+import { computed, ref, useAttrs, useId } from 'vue';
+import { Eye, EyeOff } from '@lucide/vue';
+defineOptions({ inheritAttrs: false });
+const props = defineProps({
+    label: null,
+    hint: null,
+    error: null,
+    type: { default: 'text' },
+    icon: null,
+    size: { default: 'md' },
+    optional: { type: Boolean, default: false }
+});
+const model = defineModel();
+const attrs = useAttrs();
+const autoId = useId();
+const id = computed(() => attrs.id ?? autoId);
+const showPassword = ref(false);
+const inputType = computed(() => (props.type === 'password' && showPassword.value ? 'text' : props.type));
+const describedBy = computed(() => (props.error ? `${id.value}-error` : props.hint ? `${id.value}-hint` : undefined));
 </script>
 
 <template>

@@ -1,7 +1,7 @@
-<script setup lang="ts">
-import { ShieldOff } from '@lucide/vue'
-import ZButton from '@/components/ui/ZButton.vue'
-import ZEmptyState from '@/components/ui/ZEmptyState.vue'
+<script setup>
+import { ShieldOff } from '@lucide/vue';
+import ZButton from '@/components/ui/ZButton.vue';
+import ZEmptyState from '@/components/ui/ZEmptyState.vue';
 </script>
 
 <template>

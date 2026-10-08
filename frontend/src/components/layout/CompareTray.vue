@@ -1,10 +1,9 @@
-<script setup lang="ts">
-import { useRoute } from 'vue-router'
-import { GitCompareArrows, X } from '@lucide/vue'
-import { useCompareStore, COMPARE_LIMIT } from '@/stores/compare'
-
-const compare = useCompareStore()
-const route = useRoute()
+<script setup>
+import { useRoute } from 'vue-router';
+import { GitCompareArrows, X } from '@lucide/vue';
+import { useCompareStore, COMPARE_LIMIT } from '@/stores/compare';
+const compare = useCompareStore();
+const route = useRoute();
 </script>
 
 <template>

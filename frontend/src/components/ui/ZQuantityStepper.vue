@@ -1,16 +1,17 @@
-<script setup lang="ts">
-import { Minus, Plus } from '@lucide/vue'
-
-const props = withDefaults(
-  defineProps<{ min?: number; max?: number; disabled?: boolean; size?: 'sm' | 'md'; label?: string }>(),
-  { min: 1, max: 10, size: 'md', label: 'Quantity' },
-)
-
-const model = defineModel<number>({ required: true })
-
-function step(delta: number) {
-  const next = Math.min(props.max, Math.max(props.min, model.value + delta))
-  if (next !== model.value) model.value = next
+<script setup>
+import { Minus, Plus } from '@lucide/vue';
+const props = defineProps({
+    min: { default: 1 },
+    max: { default: 10 },
+    disabled: { type: Boolean, default: false },
+    size: { default: 'md' },
+    label: { default: 'Quantity' }
+});
+const model = defineModel({ required: true });
+function step(delta) {
+    const next = Math.min(props.max, Math.max(props.min, model.value + delta));
+    if (next !== model.value)
+        model.value = next;
 }
 </script>
 

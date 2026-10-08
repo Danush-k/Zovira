@@ -1,13 +1,13 @@
-<script setup lang="ts">
-import { computed } from 'vue'
-import { Star } from '@lucide/vue'
-import { formatCompact } from '@/utils/format'
-
-const props = defineProps<{ value: number | string; count?: number }>()
-const rating = computed(() => Number(props.value))
-const tone = computed(() =>
-  rating.value >= 4 ? 'bg-brand-700' : rating.value >= 3 ? 'bg-brand-500' : rating.value > 0 ? 'bg-accent-600' : 'bg-ink-300',
-)
+<script setup>
+import { computed } from 'vue';
+import { Star } from '@lucide/vue';
+import { formatCompact } from '@/utils/format';
+const props = defineProps({
+    value: null,
+    count: null
+});
+const rating = computed(() => Number(props.value));
+const tone = computed(() => rating.value >= 4 ? 'bg-brand-700' : rating.value >= 3 ? 'bg-brand-500' : rating.value > 0 ? 'bg-accent-600' : 'bg-ink-300');
 </script>
 
 <template>

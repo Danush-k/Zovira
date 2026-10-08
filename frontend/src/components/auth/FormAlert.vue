@@ -1,7 +1,9 @@
-<script setup lang="ts">
-import { AlertCircle, CheckCircle2 } from '@lucide/vue'
-
-withDefaults(defineProps<{ tone?: 'error' | 'success'; message: string }>(), { tone: 'error' })
+<script setup>
+import { AlertCircle, CheckCircle2 } from '@lucide/vue';
+defineProps({
+    tone: { default: 'error' },
+    message: null
+});
 </script>
 
 <template>

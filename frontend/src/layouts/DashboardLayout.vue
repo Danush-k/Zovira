@@ -1,30 +1,18 @@
-<script setup lang="ts">
-import { ref, watch, type Component } from 'vue'
-import { useRoute } from 'vue-router'
-import { ExternalLink, Menu } from '@lucide/vue'
-import BrandLogo from '@/components/brand/BrandLogo.vue'
-import ZDrawer from '@/components/ui/ZDrawer.vue'
-
-export interface DashboardNavItem {
-  label: string
-  to: string
-  icon: Component
-  exact?: boolean
-}
-
-export interface DashboardNavGroup {
-  label?: string
-  items: DashboardNavItem[]
-}
-
-defineProps<{ title: string; groups: DashboardNavGroup[] }>()
-
-const route = useRoute()
-const mobileOpen = ref(false)
-watch(() => route.fullPath, () => (mobileOpen.value = false))
-
-function isActive(item: DashboardNavItem) {
-  return item.exact ? route.path === item.to : route.path === item.to || route.path.startsWith(item.to + '/')
+<script setup>
+import { ref, watch } from 'vue';
+import { useRoute } from 'vue-router';
+import { ExternalLink, Menu } from '@lucide/vue';
+import BrandLogo from '@/components/brand/BrandLogo.vue';
+import ZDrawer from '@/components/ui/ZDrawer.vue';
+defineProps({
+    title: null,
+    groups: null
+});
+const route = useRoute();
+const mobileOpen = ref(false);
+watch(() => route.fullPath, () => (mobileOpen.value = false));
+function isActive(item) {
+    return item.exact ? route.path === item.to : route.path === item.to || route.path.startsWith(item.to + '/');
 }
 </script>
 

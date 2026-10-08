@@ -1,12 +1,11 @@
-<script setup lang="ts">
-import { RotateCcw, ShieldCheck, Truck } from '@lucide/vue'
-import BrandLogo from '@/components/brand/BrandLogo.vue'
-
+<script setup>
+import { RotateCcw, ShieldCheck, Truck } from '@lucide/vue';
+import BrandLogo from '@/components/brand/BrandLogo.vue';
 const points = [
-  { icon: Truck, title: 'Tracked delivery across India', body: 'Know exactly where your order is, every step of the way.' },
-  { icon: ShieldCheck, title: 'Payments you can trust', body: 'UPI, cards, net banking and cash on delivery, verified securely.' },
-  { icon: RotateCcw, title: 'Returns without the runaround', body: 'Start a return in two taps and get refunded fast.' },
-]
+    { icon: Truck, title: 'Tracked delivery across India', body: 'Know exactly where your order is, every step of the way.' },
+    { icon: ShieldCheck, title: 'Payments you can trust', body: 'UPI, cards, net banking and cash on delivery, verified securely.' },
+    { icon: RotateCcw, title: 'Returns without the runaround', body: 'Start a return in two taps and get refunded fast.' },
+];
 </script>
 
 <template>

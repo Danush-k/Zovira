@@ -1,23 +1,22 @@
-<script setup lang="ts">
-import { AlertCircle, AlertTriangle, CheckCircle2, Info, X } from '@lucide/vue'
-import { useRouter } from 'vue-router'
-import { useToastStore, type Toast } from '@/stores/toast'
-
-const store = useToastStore()
-const router = useRouter()
-
-const icons = { success: CheckCircle2, error: AlertCircle, info: Info, warning: AlertTriangle }
+<script setup>
+import { AlertCircle, AlertTriangle, CheckCircle2, Info, X } from '@lucide/vue';
+import { useRouter } from 'vue-router';
+import { useToastStore } from '@/stores/toast';
+const store = useToastStore();
+const router = useRouter();
+const icons = { success: CheckCircle2, error: AlertCircle, info: Info, warning: AlertTriangle };
 const iconColors = {
-  success: 'text-success',
-  error: 'text-danger',
-  info: 'text-info',
-  warning: 'text-warning',
-}
-
-function runAction(toast: Toast) {
-  if (toast.action?.handler) toast.action.handler()
-  if (toast.action?.to) void router.push(toast.action.to)
-  store.dismiss(toast.id)
+    success: 'text-success',
+    error: 'text-danger',
+    info: 'text-info',
+    warning: 'text-warning',
+};
+function runAction(toast) {
+    if (toast.action?.handler)
+        toast.action.handler();
+    if (toast.action?.to)
+        void router.push(toast.action.to);
+    store.dismiss(toast.id);
 }
 </script>
 

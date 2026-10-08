@@ -1,61 +1,56 @@
-<script setup lang="ts">
-import { computed, ref, watch } from 'vue'
-import { Star } from '@lucide/vue'
-import ZCheckbox from '@/components/ui/ZCheckbox.vue'
-import ZSwitch from '@/components/ui/ZSwitch.vue'
-import type { SearchFacets, SearchParams } from '@/types/search'
-import { formatPrice } from '@/utils/format'
-
-const props = defineProps<{ facets: SearchFacets | null; params: SearchParams; lockCategory?: boolean; lockBrand?: boolean }>()
-const emit = defineEmits<{ change: [patch: Partial<SearchParams>] }>()
-
-const selectedBrands = computed(() => (props.params.brand ? props.params.brand.split(',') : []))
-const showAllBrands = ref(false)
-const brandFilter = ref('')
-const minPrice = ref<string>('')
-const maxPrice = ref<string>('')
-
-watch(
-  () => [props.params.minPrice, props.params.maxPrice],
-  ([min, max]) => {
-    minPrice.value = min != null ? String(min) : ''
-    maxPrice.value = max != null ? String(max) : ''
-  },
-  { immediate: true },
-)
-
+<script setup>
+import { computed, ref, watch } from 'vue';
+import { Star } from '@lucide/vue';
+import ZCheckbox from '@/components/ui/ZCheckbox.vue';
+import ZSwitch from '@/components/ui/ZSwitch.vue';
+import { formatPrice } from '@/utils/format';
+const props = defineProps({
+    facets: null,
+    params: null,
+    lockCategory: { type: Boolean, default: false },
+    lockBrand: { type: Boolean, default: false }
+});
+const emit = defineEmits(["change"]);
+const selectedBrands = computed(() => (props.params.brand ? props.params.brand.split(',') : []));
+const showAllBrands = ref(false);
+const brandFilter = ref('');
+const minPrice = ref('');
+const maxPrice = ref('');
+watch(() => [props.params.minPrice, props.params.maxPrice], ([min, max]) => {
+    minPrice.value = min != null ? String(min) : '';
+    maxPrice.value = max != null ? String(max) : '';
+}, { immediate: true });
 const brands = computed(() => {
-  const list = (props.facets?.brands ?? []).filter((b) => b.name.toLowerCase().includes(brandFilter.value.toLowerCase()))
-  return showAllBrands.value ? list : list.slice(0, 8)
-})
-
-function toggleBrand(slug: string, on: boolean) {
-  const next = new Set(selectedBrands.value)
-  if (on) next.add(slug)
-  else next.delete(slug)
-  emit('change', { brand: [...next].join(',') || undefined })
+    const list = (props.facets?.brands ?? []).filter((b) => b.name.toLowerCase().includes(brandFilter.value.toLowerCase()));
+    return showAllBrands.value ? list : list.slice(0, 8);
+});
+function toggleBrand(slug, on) {
+    const next = new Set(selectedBrands.value);
+    if (on)
+        next.add(slug);
+    else
+        next.delete(slug);
+    emit('change', { brand: [...next].join(',') || undefined });
 }
-
 function applyPrice() {
-  const min = Number(minPrice.value)
-  const max = Number(maxPrice.value)
-  emit('change', {
-    minPrice: minPrice.value && min >= 0 ? min : undefined,
-    maxPrice: maxPrice.value && max > 0 ? max : undefined,
-  })
+    const min = Number(minPrice.value);
+    const max = Number(maxPrice.value);
+    emit('change', {
+        minPrice: minPrice.value && min >= 0 ? min : undefined,
+        maxPrice: maxPrice.value && max > 0 ? max : undefined,
+    });
 }
-
 const pricePresets = computed(() => {
-  const max = props.facets?.maxPrice ?? 0
-  const all = [
-    [0, 999],
-    [1000, 4999],
-    [5000, 19999],
-    [20000, 49999],
-    [50000, undefined],
-  ] as const
-  return all.filter(([lo]) => lo <= max)
-})
+    const max = props.facets?.maxPrice ?? 0;
+    const all = [
+        [0, 999],
+        [1000, 4999],
+        [5000, 19999],
+        [20000, 49999],
+        [50000, undefined],
+    ];
+    return all.filter(([lo]) => lo <= max);
+});
 </script>
 
 <template>
@@ -120,7 +115,7 @@ const pricePresets = computed(() => {
           <ZCheckbox
             :model-value="selectedBrands.includes(b.slug)"
             :label="b.name"
-            @update:model-value="(v: boolean) => toggleBrand(b.slug, v)"
+            @update:model-value="(v) => toggleBrand(b.slug, v)"
           />
           <span class="tabular text-xs text-ink-400">{{ b.count }}</span>
         </li>
@@ -181,13 +176,13 @@ const pricePresets = computed(() => {
       <ZSwitch
         :model-value="!!params.inStock"
         label="In stock only"
-        @update:model-value="(v: boolean) => emit('change', { inStock: v || undefined })"
+        @update:model-value="(v) => emit('change', { inStock: v || undefined })"
       />
       <ZSwitch
         v-if="(facets?.with3dCount ?? 0) > 0 || params.has3d"
         :model-value="!!params.has3d"
         label="Viewable in 3D and AR"
-        @update:model-value="(v: boolean) => emit('change', { has3d: v || undefined })"
+        @update:model-value="(v) => emit('change', { has3d: v || undefined })"
       />
     </section>
   </div>

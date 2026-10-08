@@ -1,33 +1,26 @@
-<script setup lang="ts">
-import { computed, ref, useId } from 'vue'
-import { X } from '@lucide/vue'
-import { useFocusTrap } from '@/composables/useFocusTrap'
-import { useScrollLock } from '@/composables/useScrollLock'
-
-const props = withDefaults(
-  defineProps<{
-    title?: string
-    description?: string
-    size?: 'sm' | 'md' | 'lg' | 'xl'
-    hideClose?: boolean
-    dismissible?: boolean
-  }>(),
-  { size: 'md', dismissible: true },
-)
-
-const open = defineModel<boolean>('open', { default: false })
-const panel = ref<HTMLElement | null>(null)
-const titleId = useId()
-const descriptionId = useId()
-
-useFocusTrap(panel, open)
-useScrollLock(open)
-
-const sizes = { sm: 'max-w-sm', md: 'max-w-lg', lg: 'max-w-2xl', xl: 'max-w-4xl' }
-const panelClass = computed(() => sizes[props.size])
-
+<script setup>
+import { computed, ref, useId } from 'vue';
+import { X } from '@lucide/vue';
+import { useFocusTrap } from '@/composables/useFocusTrap';
+import { useScrollLock } from '@/composables/useScrollLock';
+const props = defineProps({
+    title: null,
+    description: null,
+    size: { default: 'md' },
+    hideClose: { type: Boolean, default: false },
+    dismissible: { type: Boolean, default: true }
+});
+const open = defineModel('open', { default: false });
+const panel = ref(null);
+const titleId = useId();
+const descriptionId = useId();
+useFocusTrap(panel, open);
+useScrollLock(open);
+const sizes = { sm: 'max-w-sm', md: 'max-w-lg', lg: 'max-w-2xl', xl: 'max-w-4xl' };
+const panelClass = computed(() => sizes[props.size]);
 function close() {
-  if (props.dismissible) open.value = false
+    if (props.dismissible)
+        open.value = false;
 }
 </script>
 

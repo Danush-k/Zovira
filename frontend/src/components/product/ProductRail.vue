@@ -1,45 +1,39 @@
-<script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from 'vue'
-import { ArrowRight, ChevronLeft, ChevronRight } from '@lucide/vue'
-import ProductCard from './ProductCard.vue'
-import ProductCardSkeleton from './ProductCardSkeleton.vue'
-import type { ProductSummary } from '@/types/catalog'
-
-withDefaults(
-  defineProps<{
-    title: string
-    subtitle?: string
-    products: ProductSummary[] | null
-    loading?: boolean
-    viewAllTo?: string
-  }>(),
-  { loading: false },
-)
-
-const track = ref<HTMLElement | null>(null)
-const canPrev = ref(false)
-const canNext = ref(false)
-
+<script setup>
+import { onBeforeUnmount, onMounted, ref } from 'vue';
+import { ArrowRight, ChevronLeft, ChevronRight } from '@lucide/vue';
+import ProductCard from './ProductCard.vue';
+import ProductCardSkeleton from './ProductCardSkeleton.vue';
+defineProps({
+    title: null,
+    subtitle: null,
+    products: null,
+    loading: { type: Boolean, default: false },
+    viewAllTo: null
+});
+const track = ref(null);
+const canPrev = ref(false);
+const canNext = ref(false);
 function update() {
-  const el = track.value
-  if (!el) return
-  canPrev.value = el.scrollLeft > 4
-  canNext.value = el.scrollLeft + el.clientWidth < el.scrollWidth - 4
+    const el = track.value;
+    if (!el)
+        return;
+    canPrev.value = el.scrollLeft > 4;
+    canNext.value = el.scrollLeft + el.clientWidth < el.scrollWidth - 4;
 }
-
-function scroll(direction: 1 | -1) {
-  const el = track.value
-  if (!el) return
-  el.scrollBy({ left: direction * el.clientWidth * 0.85, behavior: 'smooth' })
+function scroll(direction) {
+    const el = track.value;
+    if (!el)
+        return;
+    el.scrollBy({ left: direction * el.clientWidth * 0.85, behavior: 'smooth' });
 }
-
-let observer: ResizeObserver | undefined
+let observer;
 onMounted(() => {
-  update()
-  observer = new ResizeObserver(update)
-  if (track.value) observer.observe(track.value)
-})
-onBeforeUnmount(() => observer?.disconnect())
+    update();
+    observer = new ResizeObserver(update);
+    if (track.value)
+        observer.observe(track.value);
+});
+onBeforeUnmount(() => observer?.disconnect());
 </script>
 
 <template>

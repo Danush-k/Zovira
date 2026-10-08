@@ -1,9 +1,11 @@
-<script setup lang="ts">
-import type { Component } from 'vue'
+<script setup>
+defineProps({
+    icon: null,
+    title: null,
+    description: null,
+    compact: { type: Boolean, default: false }
+});
 
-withDefaults(defineProps<{ icon?: Component; title: string; description?: string; compact?: boolean }>(), {
-  compact: false,
-})
 </script>
 
 <template>

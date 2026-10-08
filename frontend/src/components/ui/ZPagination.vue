@@ -1,27 +1,30 @@
-<script setup lang="ts">
-import { computed } from 'vue'
-import { ChevronLeft, ChevronRight } from '@lucide/vue'
-
-const props = defineProps<{ page: number; totalPages: number }>()
-const emit = defineEmits<{ 'update:page': [page: number] }>()
-
+<script setup>
+import { computed } from 'vue';
+import { ChevronLeft, ChevronRight } from '@lucide/vue';
+const props = defineProps({
+    page: null,
+    totalPages: null
+});
+const emit = defineEmits(["update:page"]);
 /** Zero-based page indexes to render, with -1 marking an ellipsis. */
-const pages = computed<number[]>(() => {
-  const total = props.totalPages
-  const current = props.page
-  if (total <= 7) return Array.from({ length: total }, (_, i) => i)
-  const set = new Set([0, total - 1, current - 1, current, current + 1].filter((p) => p >= 0 && p < total))
-  const sorted = [...set].sort((a, b) => a - b)
-  const result: number[] = []
-  sorted.forEach((p, i) => {
-    if (i > 0 && p - sorted[i - 1]! > 1) result.push(-1)
-    result.push(p)
-  })
-  return result
-})
-
-function go(p: number) {
-  if (p >= 0 && p < props.totalPages && p !== props.page) emit('update:page', p)
+const pages = computed(() => {
+    const total = props.totalPages;
+    const current = props.page;
+    if (total <= 7)
+        return Array.from({ length: total }, (_, i) => i);
+    const set = new Set([0, total - 1, current - 1, current, current + 1].filter((p) => p >= 0 && p < total));
+    const sorted = [...set].sort((a, b) => a - b);
+    const result = [];
+    sorted.forEach((p, i) => {
+        if (i > 0 && p - sorted[i - 1] > 1)
+            result.push(-1);
+        result.push(p);
+    });
+    return result;
+});
+function go(p) {
+    if (p >= 0 && p < props.totalPages && p !== props.page)
+        emit('update:page', p);
 }
 </script>
 

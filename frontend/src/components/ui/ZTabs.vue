@@ -1,23 +1,19 @@
-<script setup lang="ts">
-import { ref } from 'vue'
-
-export interface TabItem {
-  value: string
-  label: string
-  count?: number
-}
-
-defineProps<{ tabs: TabItem[]; label?: string }>()
-const model = defineModel<string>({ required: true })
-const tabRefs = ref<HTMLButtonElement[]>([])
-
-function onKeydown(e: KeyboardEvent, index: number, tabs: TabItem[]) {
-  const delta = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0
-  if (!delta) return
-  e.preventDefault()
-  const next = (index + delta + tabs.length) % tabs.length
-  model.value = tabs[next]!.value
-  tabRefs.value[next]?.focus()
+<script setup>
+import { ref } from 'vue';
+defineProps({
+    tabs: null,
+    label: null
+});
+const model = defineModel({ required: true });
+const tabRefs = ref([]);
+function onKeydown(e, index, tabs) {
+    const delta = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+    if (!delta)
+        return;
+    e.preventDefault();
+    const next = (index + delta + tabs.length) % tabs.length;
+    model.value = tabs[next].value;
+    tabRefs.value[next]?.focus();
 }
 </script>
 

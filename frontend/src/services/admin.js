@@ -1,0 +1,26 @@
+import { http } from "./http";
+export const adminApi = {
+  overview: () => http.get("/admin/overview").then((r) => r.data),
+  users: (params) => http.get("/admin/users", { params }).then((r) => r.data),
+  setUserStatus: (id, status, reason) => http.patch(`/admin/users/${id}/status`, { reason }, { params: { status } }).then((r) => r.data),
+  sellers: (params) => http.get("/admin/sellers", { params }).then((r) => r.data),
+  decideSeller: (id, status, reason) => http.post(`/admin/sellers/${id}/decision`, { reason }, { params: { status } }).then((r) => r.data),
+  categories: () => http.get("/admin/categories").then((r) => r.data),
+  createCategory: (body) => http.post("/admin/categories", body).then((r) => r.data),
+  updateCategory: (id, body) => http.put(`/admin/categories/${id}`, body).then((r) => r.data),
+  products: (params) => http.get("/admin/products", { params }).then((r) => r.data),
+  setProductStatus: (id, status, reason) => http.patch(`/admin/products/${id}/status`, { reason }, { params: { status } }).then((r) => r.data),
+  orders: (params) => http.get("/admin/orders", { params }).then((r) => r.data),
+  cancelOrder: (orderNumber, reason) => http.post(`/admin/orders/${orderNumber}/cancel`, { reason }).then(() => void 0),
+  returns: (openOnly = true, page = 0) => http.get("/admin/returns", { params: { openOnly, page } }).then((r) => r.data),
+  decideReturn: (id, decision, note) => http.post(`/admin/returns/${id}/decision`, { decision, note }).then((r) => r.data),
+  reviews: (params) => http.get("/admin/reviews", { params }).then((r) => r.data),
+  moderateReview: (id, status, reason) => http.patch(`/admin/reviews/${id}`, { reason }, { params: { status } }).then((r) => r.data),
+  coupons: (page = 0) => http.get("/admin/coupons", { params: { page, size: 20 } }).then((r) => r.data),
+  createCoupon: (body) => http.post("/admin/coupons", body).then((r) => r.data),
+  updateCoupon: (id, body) => http.put(`/admin/coupons/${id}`, body).then((r) => r.data),
+  deactivateCoupon: (id) => http.delete(`/admin/coupons/${id}`).then((r) => r.data),
+  settings: () => http.get("/admin/settings").then((r) => r.data),
+  updateSettings: (values) => http.put("/admin/settings", values).then((r) => r.data),
+  auditLog: (page = 0) => http.get("/admin/audit-log", { params: { page, size: 30 } }).then((r) => r.data)
+};

@@ -1,13 +1,13 @@
-<script setup lang="ts">
-import { Check } from '@lucide/vue'
-import type { ProductAttribute, ProductVariant } from '@/types/catalog'
-import { choose, optionState, type Selection } from '@/utils/variants'
-
-const props = defineProps<{ attributes: ProductAttribute[]; variants: ProductVariant[] }>()
-const selection = defineModel<Selection>({ required: true })
-
-function pick(attribute: string, value: string) {
-  selection.value = choose(props.variants, props.attributes, selection.value, attribute, value)
+<script setup>
+import { Check } from '@lucide/vue';
+import { choose, optionState } from '@/utils/variants';
+const props = defineProps({
+    attributes: null,
+    variants: null
+});
+const selection = defineModel({ required: true });
+function pick(attribute, value) {
+    selection.value = choose(props.variants, props.attributes, selection.value, attribute, value);
 }
 </script>
 

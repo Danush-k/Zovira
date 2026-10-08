@@ -1,0 +1,66 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    compatibility-verifier:
+      enabled: false
+    gateway:
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins:
+              - "http://localhost:5173"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - PATCH
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: true
+            maxAge: 3600
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        # User Service Routes (Auth, Users, Addresses, Seller Profiles, Sell Onboarding, Admin)
+        - id: user-service-auth
+          uri: ${USER_SERVICE_URL:http://localhost:8081}
+          predicates:
+            - Path=/api/v1/auth/**,/api/v1/users/**,/api/v1/account/**,/api/v1/addresses/**,/api/v1/seller/**,/api/v1/sell/**,/api/v1/admin/**
+
+        # Catalog Service Routes (Home, Products, Categories, Brands, Stores, Search, Inventory, Reviews, Settings, Media)
+        - id: catalog-service
+          uri: ${CATALOG_SERVICE_URL:http://localhost:8082}
+          predicates:
+            - Path=/api/v1/home,/api/v1/home/**,/api/v1/categories,/api/v1/categories/**,/api/v1/brands,/api/v1/brands/**,/api/v1/products/**,/api/v1/stores/**,/api/v1/search/**,/api/v1/inventory/**,/api/v1/reviews/**,/api/v1/catalog/**,/api/v1/settings/**,/media/**,/api/v1/uploads/**
+
+        # Cart Service Routes (Cart, Wishlist, Coupons)
+        - id: cart-service
+          uri: ${CART_SERVICE_URL:http://localhost:8083}
+          predicates:
+            - Path=/api/v1/cart/**,/api/v1/coupons/**,/api/v1/wishlist/**
+
+        # Order Service Routes (Checkout, Orders, Payments, Shipping, Returns, Delivery)
+        - id: order-service
+          uri: ${ORDER_SERVICE_URL:http://localhost:8084}
+          predicates:
+            - Path=/api/v1/checkout/**,/api/v1/orders/**,/api/v1/payments/**,/api/v1/shipments/**,/api/v1/returns/**,/api/v1/delivery/**
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,gateway

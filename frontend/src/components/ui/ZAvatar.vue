@@ -1,20 +1,18 @@
-<script setup lang="ts">
-import { computed, ref } from 'vue'
-
-const props = withDefaults(defineProps<{ name: string; src?: string | null; size?: 'sm' | 'md' | 'lg' }>(), {
-  size: 'md',
-})
-
-const failed = ref(false)
-const initials = computed(() =>
-  props.name
+<script setup>
+import { computed, ref } from 'vue';
+const props = defineProps({
+    name: null,
+    src: null,
+    size: { default: 'md' }
+});
+const failed = ref(false);
+const initials = computed(() => props.name
     .split(/\s+/)
     .filter(Boolean)
     .slice(0, 2)
-    .map((p) => p[0]!.toUpperCase())
-    .join(''),
-)
-const sizes = { sm: 'size-8 text-xs', md: 'size-10 text-sm', lg: 'size-16 text-xl' }
+    .map((p) => p[0].toUpperCase())
+    .join(''));
+const sizes = { sm: 'size-8 text-xs', md: 'size-10 text-sm', lg: 'size-16 text-xl' };
 </script>
 
 <template>

@@ -1,11 +1,12 @@
-<script setup lang="ts">
-import { Phone } from '@lucide/vue'
-import ZBadge from '@/components/ui/ZBadge.vue'
-import type { Address } from '@/types/api'
-
-defineProps<{ address: Address; selectable?: boolean; selected?: boolean }>()
-
-const typeLabel = { HOME: 'Home', WORK: 'Work', OTHER: 'Other' }
+<script setup>
+import { Phone } from '@lucide/vue';
+import ZBadge from '@/components/ui/ZBadge.vue';
+defineProps({
+    address: null,
+    selectable: { type: Boolean, default: false },
+    selected: { type: Boolean, default: false }
+});
+const typeLabel = { HOME: 'Home', WORK: 'Work', OTHER: 'Other' };
 </script>
 
 <template>

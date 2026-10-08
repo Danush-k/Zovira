@@ -1,113 +1,104 @@
-<script setup lang="ts">
-import { computed, ref, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { Clock, Search, Tag, TrendingUp, X } from '@lucide/vue'
-import { searchApi } from '@/services/search'
-import { useAuthStore } from '@/stores/auth'
-import { useClickOutside } from '@/composables/useClickOutside'
-import { formatPrice } from '@/utils/format'
-import type { Suggestions } from '@/types/search'
-
-const props = withDefaults(defineProps<{ inputId: string; variant?: 'desktop' | 'mobile' }>(), { variant: 'desktop' })
-
-const router = useRouter()
-const route = useRoute()
-const auth = useAuthStore()
-const root = ref<HTMLElement | null>(null)
-const input = ref<HTMLInputElement | null>(null)
-const query = ref(typeof route.query.q === 'string' ? route.query.q : '')
-const open = ref(false)
-const active = ref(-1)
-const suggestions = ref<Suggestions | null>(null)
-const recent = ref<string[]>([])
-const trending = ref<string[]>([])
-let controller: AbortController | null = null
-let timer: ReturnType<typeof setTimeout> | undefined
-
-useClickOutside([root], () => (open.value = false))
-
-watch(
-  () => route.query.q,
-  (q) => (query.value = typeof q === 'string' ? q : ''),
-)
-
+<script setup>
+import { computed, ref, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { Clock, Search, Tag, TrendingUp, X } from '@lucide/vue';
+import { searchApi } from '@/services/search';
+import { useAuthStore } from '@/stores/auth';
+import { useClickOutside } from '@/composables/useClickOutside';
+import { formatPrice } from '@/utils/format';
+const props = defineProps({
+    inputId: null,
+    variant: { default: 'desktop' }
+});
+const router = useRouter();
+const route = useRoute();
+const auth = useAuthStore();
+const root = ref(null);
+const input = ref(null);
+const query = ref(typeof route.query.q === 'string' ? route.query.q : '');
+const open = ref(false);
+const active = ref(-1);
+const suggestions = ref(null);
+const recent = ref([]);
+const trending = ref([]);
+let controller = null;
+let timer;
+useClickOutside([root], () => (open.value = false));
+watch(() => route.query.q, (q) => (query.value = typeof q === 'string' ? q : ''));
 watch(query, (q) => {
-  clearTimeout(timer)
-  active.value = -1
-  if (q.trim().length < 2) {
-    suggestions.value = null
-    return
-  }
-  timer = setTimeout(async () => {
-    controller?.abort()
-    controller = new AbortController()
-    try {
-      suggestions.value = await searchApi.suggest(q.trim(), controller.signal)
-    } catch {
-      // aborted or failed; keep previous suggestions
+    clearTimeout(timer);
+    active.value = -1;
+    if (q.trim().length < 2) {
+        suggestions.value = null;
+        return;
     }
-  }, 180)
-})
-
+    timer = setTimeout(async () => {
+        controller?.abort();
+        controller = new AbortController();
+        try {
+            suggestions.value = await searchApi.suggest(q.trim(), controller.signal);
+        }
+        catch {
+            // aborted or failed; keep previous suggestions
+        }
+    }, 180);
+});
 async function onFocus() {
-  open.value = true
-  if (!trending.value.length) trending.value = await searchApi.trending().catch(() => [])
-  if (auth.isAuthenticated) recent.value = await searchApi.history().catch(() => [])
+    open.value = true;
+    if (!trending.value.length)
+        trending.value = await searchApi.trending().catch(() => []);
+    if (auth.isAuthenticated)
+        recent.value = await searchApi.history().catch(() => []);
 }
-
-type Item = { kind: 'query' | 'product' | 'category' | 'brand'; label: string; to: string; image?: string | null; price?: number }
-
-const items = computed<Item[]>(() => {
-  const s = suggestions.value
-  if (query.value.trim().length >= 2 && s) {
-    return [
-      ...s.queries.map((q) => ({ kind: 'query' as const, label: q, to: `/search?q=${encodeURIComponent(q)}` })),
-      ...s.categories.map((c) => ({ kind: 'category' as const, label: c.name, to: `/c/${c.slug}` })),
-      ...s.brands.map((b) => ({ kind: 'brand' as const, label: b.name, to: `/brand/${b.slug}` })),
-      ...s.products.map((p) => ({ kind: 'product' as const, label: p.title, to: `/p/${p.slug}`, image: p.imageUrl, price: p.price })),
-    ]
-  }
-  const history = recent.value.map((q) => ({ kind: 'query' as const, label: q, to: `/search?q=${encodeURIComponent(q)}` }))
-  return history.length ? history : trending.value.map((q) => ({ kind: 'query' as const, label: q, to: `/search?q=${encodeURIComponent(q)}` }))
-})
-
-const emptyHeading = computed(() => (recent.value.length ? 'Recent searches' : 'Popular right now'))
-
+const items = computed(() => {
+    const s = suggestions.value;
+    if (query.value.trim().length >= 2 && s) {
+        return [
+            ...s.queries.map((q) => ({ kind: 'query', label: q, to: `/search?q=${encodeURIComponent(q)}` })),
+            ...s.categories.map((c) => ({ kind: 'category', label: c.name, to: `/c/${c.slug}` })),
+            ...s.brands.map((b) => ({ kind: 'brand', label: b.name, to: `/brand/${b.slug}` })),
+            ...s.products.map((p) => ({ kind: 'product', label: p.title, to: `/p/${p.slug}`, image: p.imageUrl, price: p.price })),
+        ];
+    }
+    const history = recent.value.map((q) => ({ kind: 'query', label: q, to: `/search?q=${encodeURIComponent(q)}` }));
+    return history.length ? history : trending.value.map((q) => ({ kind: 'query', label: q, to: `/search?q=${encodeURIComponent(q)}` }));
+});
+const emptyHeading = computed(() => (recent.value.length ? 'Recent searches' : 'Popular right now'));
 function submit() {
-  if (active.value >= 0 && items.value[active.value]) return go(items.value[active.value]!.to)
-  const q = query.value.trim()
-  if (q) go(`/search?q=${encodeURIComponent(q)}`)
+    if (active.value >= 0 && items.value[active.value])
+        return go(items.value[active.value].to);
+    const q = query.value.trim();
+    if (q)
+        go(`/search?q=${encodeURIComponent(q)}`);
 }
-
-function go(to: string) {
-  open.value = false
-  input.value?.blur()
-  void router.push(to)
+function go(to) {
+    open.value = false;
+    input.value?.blur();
+    void router.push(to);
 }
-
-function onKeydown(e: KeyboardEvent) {
-  if (!open.value || !items.value.length) return
-  if (e.key === 'ArrowDown') {
-    e.preventDefault()
-    active.value = (active.value + 1) % items.value.length
-  } else if (e.key === 'ArrowUp') {
-    e.preventDefault()
-    active.value = active.value <= 0 ? items.value.length - 1 : active.value - 1
-  } else if (e.key === 'Escape') {
-    open.value = false
-  }
+function onKeydown(e) {
+    if (!open.value || !items.value.length)
+        return;
+    if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        active.value = (active.value + 1) % items.value.length;
+    }
+    else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        active.value = active.value <= 0 ? items.value.length - 1 : active.value - 1;
+    }
+    else if (e.key === 'Escape') {
+        open.value = false;
+    }
 }
-
 async function clearHistory() {
-  await searchApi.clearHistory().catch(() => undefined)
-  recent.value = []
+    await searchApi.clearHistory().catch(() => undefined);
+    recent.value = [];
 }
-
 function focus() {
-  input.value?.focus()
+    input.value?.focus();
 }
-
-defineExpose({ focus })
+defineExpose({ focus });
 </script>
 
 <template>

@@ -1,14 +1,12 @@
-<script setup lang="ts">
-import { useId } from 'vue'
-
-defineProps<{
-  label?: string
-  description?: string
-  disabled?: boolean
-}>()
-
-const model = defineModel<boolean>({ default: false })
-const id = useId()
+<script setup>
+import { useId } from 'vue';
+defineProps({
+    label: null,
+    description: null,
+    disabled: { type: Boolean, default: false }
+});
+const model = defineModel({ default: false });
+const id = useId();
 </script>
 
 <template>

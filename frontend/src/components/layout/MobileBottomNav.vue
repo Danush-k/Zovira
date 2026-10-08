@@ -1,15 +1,15 @@
-<script setup lang="ts">
-import { computed } from 'vue'
-import { useRoute } from 'vue-router'
-import { House, LayoutGrid, Search, ShoppingBag, UserRound } from '@lucide/vue'
-
-defineProps<{ cartCount?: number }>()
-const emit = defineEmits<{ categories: []; search: [] }>()
-const route = useRoute()
-
-const isHome = computed(() => route.path === '/')
-const isAccount = computed(() => route.path.startsWith('/account') || route.path === '/login')
-const isCart = computed(() => route.path === '/cart')
+<script setup>
+import { computed } from 'vue';
+import { useRoute } from 'vue-router';
+import { House, LayoutGrid, Search, ShoppingBag, UserRound } from '@lucide/vue';
+defineProps({
+    cartCount: null
+});
+const emit = defineEmits(["categories", "search"]);
+const route = useRoute();
+const isHome = computed(() => route.path === '/');
+const isAccount = computed(() => route.path.startsWith('/account') || route.path === '/login');
+const isCart = computed(() => route.path === '/cart');
 </script>
 
 <template>

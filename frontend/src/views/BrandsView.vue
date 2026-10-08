@@ -1,20 +1,18 @@
-<script setup lang="ts">
-import { computed } from 'vue'
-import ZBreadcrumbs from '@/components/ui/ZBreadcrumbs.vue'
-import ZErrorState from '@/components/ui/ZErrorState.vue'
-import { catalogApi } from '@/services/catalog'
-import { useAsync } from '@/composables/useAsync'
-
-const { data: brands, loading, error, execute } = useAsync(catalogApi.brands, { immediate: true })
-
+<script setup>
+import { computed } from 'vue';
+import ZBreadcrumbs from '@/components/ui/ZBreadcrumbs.vue';
+import ZErrorState from '@/components/ui/ZErrorState.vue';
+import { catalogApi } from '@/services/catalog';
+import { useAsync } from '@/composables/useAsync';
+const { data: brands, loading, error, execute } = useAsync(catalogApi.brands, { immediate: true });
 const grouped = computed(() => {
-  const map = new Map<string, typeof brands.value>()
-  for (const b of brands.value ?? []) {
-    const letter = /[A-Z]/i.test(b.name[0] ?? '') ? b.name[0]!.toUpperCase() : '#'
-    map.set(letter, [...(map.get(letter) ?? []), b])
-  }
-  return [...map.entries()].sort(([a], [b]) => a.localeCompare(b))
-})
+    const map = new Map();
+    for (const b of brands.value ?? []) {
+        const letter = /[A-Z]/i.test(b.name[0] ?? '') ? b.name[0].toUpperCase() : '#';
+        map.set(letter, [...(map.get(letter) ?? []), b]);
+    }
+    return [...map.entries()].sort(([a], [b]) => a.localeCompare(b));
+});
 </script>
 
 <template>
