@@ -1,46 +1,45 @@
-<script setup lang="ts">
-import { ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
-import { Package, RotateCw } from '@lucide/vue'
-import ZButton from '@/components/ui/ZButton.vue'
-import ZTabs from '@/components/ui/ZTabs.vue'
-import ZEmptyState from '@/components/ui/ZEmptyState.vue'
-import ZErrorState from '@/components/ui/ZErrorState.vue'
-import ZPagination from '@/components/ui/ZPagination.vue'
-import OrderStatusBadge from '@/components/order/OrderStatusBadge.vue'
-import { ordersApi } from '@/services/orders'
-import { errorMessage } from '@/services/errors'
-import { useAsync } from '@/composables/useAsync'
-import { useCartStore } from '@/stores/cart'
-import { useToastStore } from '@/stores/toast'
-import { formatDate, formatPrice } from '@/utils/format'
-
-const filter = ref('all')
-const page = ref(0)
-const cart = useCartStore()
-const toast = useToastStore()
-const router = useRouter()
-const { data, loading, error, execute } = useAsync((f: string, p: number) => ordersApi.list(f, p))
-
-watch([filter, page], () => void execute(filter.value, page.value), { immediate: true })
-watch(filter, () => (page.value = 0))
-
+<script setup>
+import { ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
+import { Package, RotateCw } from '@lucide/vue';
+import ZButton from '@/components/ui/ZButton.vue';
+import ZTabs from '@/components/ui/ZTabs.vue';
+import ZEmptyState from '@/components/ui/ZEmptyState.vue';
+import ZErrorState from '@/components/ui/ZErrorState.vue';
+import ZPagination from '@/components/ui/ZPagination.vue';
+import OrderStatusBadge from '@/components/order/OrderStatusBadge.vue';
+import { ordersApi } from '@/services/orders';
+import { errorMessage } from '@/services/errors';
+import { useAsync } from '@/composables/useAsync';
+import { useCartStore } from '@/stores/cart';
+import { useToastStore } from '@/stores/toast';
+import { formatDate, formatPrice } from '@/utils/format';
+const filter = ref('all');
+const page = ref(0);
+const cart = useCartStore();
+const toast = useToastStore();
+const router = useRouter();
+const { data, loading, error, execute } = useAsync((f, p) => ordersApi.list(f, p));
+watch([filter, page], () => void execute(filter.value, page.value), { immediate: true });
+watch(filter, () => (page.value = 0));
 const tabs = [
-  { value: 'all', label: 'All orders' },
-  { value: 'active', label: 'In progress' },
-  { value: 'delivered', label: 'Delivered' },
-  { value: 'cancelled', label: 'Cancelled' },
-]
-
-async function buyAgain(orderNumber: string) {
-  try {
-    const result = await ordersApi.reorder(orderNumber)
-    await cart.load()
-    if (result.unavailable.length) toast.warning('Some items are unavailable', result.unavailable.join(', '))
-    if (result.added) await router.push('/cart')
-  } catch (e) {
-    toast.error("Couldn't add items to cart", errorMessage(e))
-  }
+    { value: 'all', label: 'All orders' },
+    { value: 'active', label: 'In progress' },
+    { value: 'delivered', label: 'Delivered' },
+    { value: 'cancelled', label: 'Cancelled' },
+];
+async function buyAgain(orderNumber) {
+    try {
+        const result = await ordersApi.reorder(orderNumber);
+        await cart.load();
+        if (result.unavailable.length)
+            toast.warning('Some items are unavailable', result.unavailable.join(', '));
+        if (result.added)
+            await router.push('/cart');
+    }
+    catch (e) {
+        toast.error("Couldn't add items to cart", errorMessage(e));
+    }
 }
 </script>
 

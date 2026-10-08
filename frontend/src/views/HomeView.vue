@@ -1,16 +1,15 @@
-<script setup lang="ts">
-import { computed } from 'vue'
-import HeroCarousel from '@/components/home/HeroCarousel.vue'
-import CategoryStrip from '@/components/home/CategoryStrip.vue'
-import BrandShowcase from '@/components/home/BrandShowcase.vue'
-import ImmersiveBand from '@/components/home/ImmersiveBand.vue'
-import ProductRail from '@/components/product/ProductRail.vue'
-import ZErrorState from '@/components/ui/ZErrorState.vue'
-import { catalogApi } from '@/services/catalog'
-import { useAsync } from '@/composables/useAsync'
-
-const { data: home, loading, error, execute } = useAsync(catalogApi.home, { immediate: true })
-const categories = computed(() => home.value?.categories ?? [])
+<script setup>
+import { computed } from 'vue';
+import HeroCarousel from '@/components/home/HeroCarousel.vue';
+import CategoryStrip from '@/components/home/CategoryStrip.vue';
+import BrandShowcase from '@/components/home/BrandShowcase.vue';
+import ImmersiveBand from '@/components/home/ImmersiveBand.vue';
+import ProductRail from '@/components/product/ProductRail.vue';
+import ZErrorState from '@/components/ui/ZErrorState.vue';
+import { catalogApi } from '@/services/catalog';
+import { useAsync } from '@/composables/useAsync';
+const { data: home, loading, error, execute } = useAsync(catalogApi.home, { immediate: true });
+const categories = computed(() => home.value?.categories ?? []);
 </script>
 
 <template>

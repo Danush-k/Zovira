@@ -1,27 +1,23 @@
-<script setup lang="ts">
-import { computed } from 'vue'
-import { IndianRupee, Package, PackageX, RotateCcw, ShoppingCart, Star } from '@lucide/vue'
-import ZButton from '@/components/ui/ZButton.vue'
-import ZErrorState from '@/components/ui/ZErrorState.vue'
-import ZStatTile from '@/components/charts/ZStatTile.vue'
-import ZAreaChart from '@/components/charts/ZAreaChart.vue'
-import ZBarList from '@/components/charts/ZBarList.vue'
-import OrderStatusBadge from '@/components/order/OrderStatusBadge.vue'
-import { sellerApi } from '@/services/seller'
-import { useAsync } from '@/composables/useAsync'
-import { formatCompact, formatDate, formatPrice, pluralize } from '@/utils/format'
-
-const { data, loading, error, execute } = useAsync(sellerApi.dashboard, { immediate: true })
-
-const money = (v: number) => (v >= 100000 ? `₹${formatCompact(v)}` : formatPrice(v))
-const series = computed(() =>
-  (data.value?.revenueSeries ?? []).map((p) => ({
+<script setup>
+import { computed } from 'vue';
+import { IndianRupee, Package, PackageX, RotateCcw, ShoppingCart, Star } from '@lucide/vue';
+import ZButton from '@/components/ui/ZButton.vue';
+import ZErrorState from '@/components/ui/ZErrorState.vue';
+import ZStatTile from '@/components/charts/ZStatTile.vue';
+import ZAreaChart from '@/components/charts/ZAreaChart.vue';
+import ZBarList from '@/components/charts/ZBarList.vue';
+import OrderStatusBadge from '@/components/order/OrderStatusBadge.vue';
+import { sellerApi } from '@/services/seller';
+import { useAsync } from '@/composables/useAsync';
+import { formatCompact, formatDate, formatPrice, pluralize } from '@/utils/format';
+const { data, loading, error, execute } = useAsync(sellerApi.dashboard, { immediate: true });
+const money = (v) => (v >= 100000 ? `₹${formatCompact(v)}` : formatPrice(v));
+const series = computed(() => (data.value?.revenueSeries ?? []).map((p) => ({
     label: formatDate(p.date, { day: 'numeric', month: 'short' }),
     value: Number(p.revenue),
     secondary: p.orders,
-  })),
-)
-const trend = computed(() => (data.value?.revenueSeries ?? []).map((p) => Number(p.revenue)))
+})));
+const trend = computed(() => (data.value?.revenueSeries ?? []).map((p) => Number(p.revenue)));
 </script>
 
 <template>

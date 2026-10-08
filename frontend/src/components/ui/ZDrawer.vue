@@ -1,20 +1,18 @@
-<script setup lang="ts">
-import { ref, useId } from 'vue'
-import { X } from '@lucide/vue'
-import { useFocusTrap } from '@/composables/useFocusTrap'
-import { useScrollLock } from '@/composables/useScrollLock'
-
-withDefaults(defineProps<{ title?: string; side?: 'left' | 'right'; width?: string }>(), {
-  side: 'right',
-  width: 'max-w-md',
-})
-
-const open = defineModel<boolean>('open', { default: false })
-const panel = ref<HTMLElement | null>(null)
-const titleId = useId()
-
-useFocusTrap(panel, open)
-useScrollLock(open)
+<script setup>
+import { ref, useId } from 'vue';
+import { X } from '@lucide/vue';
+import { useFocusTrap } from '@/composables/useFocusTrap';
+import { useScrollLock } from '@/composables/useScrollLock';
+defineProps({
+    title: null,
+    side: { default: 'right' },
+    width: { default: 'max-w-md' }
+});
+const open = defineModel('open', { default: false });
+const panel = ref(null);
+const titleId = useId();
+useFocusTrap(panel, open);
+useScrollLock(open);
 </script>
 
 <template>

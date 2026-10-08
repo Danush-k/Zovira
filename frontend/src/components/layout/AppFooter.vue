@@ -1,15 +1,13 @@
-<script setup lang="ts">
-import { BadgeCheck, RotateCcw, ShieldCheck, Truck } from '@lucide/vue'
-import BrandLogo from '@/components/brand/BrandLogo.vue'
-
-const year = new Date().getFullYear()
-
+<script setup>
+import { BadgeCheck, RotateCcw, ShieldCheck, Truck } from '@lucide/vue';
+import BrandLogo from '@/components/brand/BrandLogo.vue';
+const year = new Date().getFullYear();
 const assurances = [
-  { icon: Truck, title: 'Fast, tracked delivery', body: 'Free on orders above ₹499' },
-  { icon: RotateCcw, title: 'Easy returns', body: 'Hassle-free 7-day returns' },
-  { icon: ShieldCheck, title: 'Secure payments', body: 'UPI, cards, net banking, COD' },
-  { icon: BadgeCheck, title: 'Genuine products', body: 'From verified sellers only' },
-]
+    { icon: Truck, title: 'Fast, tracked delivery', body: 'Free on orders above ₹499' },
+    { icon: RotateCcw, title: 'Easy returns', body: 'Hassle-free 7-day returns' },
+    { icon: ShieldCheck, title: 'Secure payments', body: 'UPI, cards, net banking, COD' },
+    { icon: BadgeCheck, title: 'Genuine products', body: 'From verified sellers only' },
+];
 </script>
 
 <template>

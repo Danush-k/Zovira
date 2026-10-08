@@ -1,50 +1,46 @@
-<script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { ArrowRight, ChevronLeft, ChevronRight, Pause, Play } from '@lucide/vue'
-import type { HeroSlide } from '@/types/catalog'
-
-const props = defineProps<{ slides: HeroSlide[] }>()
-
-const index = ref(0)
-const paused = ref(false)
-const userPaused = ref(false)
-const reducedMotion = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
-let timer: ReturnType<typeof setInterval> | undefined
-
-const tones: Record<HeroSlide['tone'], { bg: string; accent: string; ring: string }> = {
-  sand: { bg: 'bg-[#f3ebdd]', accent: 'text-accent-700', ring: 'bg-[#eadcc4]' },
-  teal: { bg: 'bg-brand-100/70', accent: 'text-brand-700', ring: 'bg-brand-200/60' },
-  lilac: { bg: 'bg-[#ebe7f3]', accent: 'text-[#5a4a86]', ring: 'bg-[#ddd6ec]' },
-  mint: { bg: 'bg-[#e4f1e6]', accent: 'text-success', ring: 'bg-[#d0e7d4]' },
+<script setup>
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { ArrowRight, ChevronLeft, ChevronRight, Pause, Play } from '@lucide/vue';
+const props = defineProps({
+    slides: null
+});
+const index = ref(0);
+const paused = ref(false);
+const userPaused = ref(false);
+const reducedMotion = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+let timer;
+const tones = {
+    sand: { bg: 'bg-[#f3ebdd]', accent: 'text-accent-700', ring: 'bg-[#eadcc4]' },
+    teal: { bg: 'bg-brand-100/70', accent: 'text-brand-700', ring: 'bg-brand-200/60' },
+    lilac: { bg: 'bg-[#ebe7f3]', accent: 'text-[#5a4a86]', ring: 'bg-[#ddd6ec]' },
+    mint: { bg: 'bg-[#e4f1e6]', accent: 'text-success', ring: 'bg-[#d0e7d4]' },
+};
+const current = computed(() => props.slides[index.value]);
+function go(i) {
+    index.value = (i + props.slides.length) % props.slides.length;
 }
-
-const current = computed(() => props.slides[index.value])
-
-function go(i: number) {
-  index.value = (i + props.slides.length) % props.slides.length
-}
-
 function start() {
-  stop()
-  if (reducedMotion || userPaused.value || props.slides.length < 2) return
-  timer = setInterval(() => {
-    if (!paused.value) go(index.value + 1)
-  }, 6500)
+    stop();
+    if (reducedMotion || userPaused.value || props.slides.length < 2)
+        return;
+    timer = setInterval(() => {
+        if (!paused.value)
+            go(index.value + 1);
+    }, 6500);
 }
-
 function stop() {
-  clearInterval(timer)
+    clearInterval(timer);
 }
-
 function togglePlay() {
-  userPaused.value = !userPaused.value
-  if (userPaused.value) stop()
-  else start()
+    userPaused.value = !userPaused.value;
+    if (userPaused.value)
+        stop();
+    else
+        start();
 }
-
-watch(() => props.slides.length, start)
-onMounted(start)
-onBeforeUnmount(stop)
+watch(() => props.slides.length, start);
+onMounted(start);
+onBeforeUnmount(stop);
 </script>
 
 <template>

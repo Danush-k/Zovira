@@ -1,34 +1,34 @@
-<script setup lang="ts">
-import { onMounted, ref } from 'vue'
-import { useRoute } from 'vue-router'
-import { CheckCircle2, XCircle } from '@lucide/vue'
-import ZButton from '@/components/ui/ZButton.vue'
-import ZSpinner from '@/components/ui/ZSpinner.vue'
-import { authApi } from '@/services/auth'
-import { errorMessage } from '@/services/errors'
-import { useAuthStore } from '@/stores/auth'
-
-const route = useRoute()
-const auth = useAuthStore()
-const state = ref<'verifying' | 'success' | 'error'>('verifying')
-const message = ref('')
-
+<script setup>
+import { onMounted, ref } from 'vue';
+import { useRoute } from 'vue-router';
+import { CheckCircle2, XCircle } from '@lucide/vue';
+import ZButton from '@/components/ui/ZButton.vue';
+import ZSpinner from '@/components/ui/ZSpinner.vue';
+import { authApi } from '@/services/auth';
+import { errorMessage } from '@/services/errors';
+import { useAuthStore } from '@/stores/auth';
+const route = useRoute();
+const auth = useAuthStore();
+const state = ref('verifying');
+const message = ref('');
 onMounted(async () => {
-  const token = typeof route.query.token === 'string' ? route.query.token : ''
-  if (!token) {
-    state.value = 'error'
-    message.value = 'This verification link is incomplete. Open the link from your email again.'
-    return
-  }
-  try {
-    await authApi.verifyEmail(token)
-    if (auth.user) auth.setUser({ ...auth.user, emailVerified: true })
-    state.value = 'success'
-  } catch (e) {
-    state.value = 'error'
-    message.value = errorMessage(e)
-  }
-})
+    const token = typeof route.query.token === 'string' ? route.query.token : '';
+    if (!token) {
+        state.value = 'error';
+        message.value = 'This verification link is incomplete. Open the link from your email again.';
+        return;
+    }
+    try {
+        await authApi.verifyEmail(token);
+        if (auth.user)
+            auth.setUser({ ...auth.user, emailVerified: true });
+        state.value = 'success';
+    }
+    catch (e) {
+        state.value = 'error';
+        message.value = errorMessage(e);
+    }
+});
 </script>
 
 <template>

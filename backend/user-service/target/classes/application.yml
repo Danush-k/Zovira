@@ -1,0 +1,53 @@
+spring:
+  application:
+    name: user-service
+  cloud:
+    compatibility-verifier:
+      enabled: false
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:mongodb://localhost:27017/zovira}
+      auto-index-creation: true
+
+server:
+  port: 8081
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+zovira:
+  app:
+    name: Zovira
+    frontend-url: ${FRONTEND_URL:http://localhost:5173}
+  security:
+    jwt:
+      secret: ${JWT_SECRET:dev-only-zovira-jwt-secret-change-me-0123456789abcdef}
+      issuer: ${JWT_ISSUER:zovira}
+      access-token-ttl: ${JWT_ACCESS_TTL:15m}
+      refresh-token-ttl: ${JWT_REFRESH_TTL:30d}
+    cors:
+      allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
+    cookie:
+      secure: ${COOKIE_SECURE:false}
+      same-site: ${COOKIE_SAME_SITE:Lax}
+    rate-limit:
+      enabled: ${RATE_LIMIT_ENABLED:false}
+    login:
+      max-failed-attempts: 5
+      lock-duration: 15m
+    password:
+      bcrypt-strength: ${BCRYPT_STRENGTH:12}
+  seed:
+    enabled: ${SEED_ENABLED:true}
+  mail:
+    from: ${MAIL_FROM:Zovira <no-reply@zovira.test>}

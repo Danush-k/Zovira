@@ -1,41 +1,38 @@
-<script setup lang="ts">
-import { onMounted, ref, watch } from 'vue'
-import { TicketPercent, X } from '@lucide/vue'
-import ZButton from '@/components/ui/ZButton.vue'
-import { useCartStore } from '@/stores/cart'
-import { cartApi } from '@/services/cart'
-import { errorMessage } from '@/services/errors'
-import type { CouponOffer } from '@/types/cart'
-import { formatPrice } from '@/utils/format'
-
-const cart = useCartStore()
-const code = ref('')
-const error = ref<string | null>(null)
-const applying = ref(false)
-const offers = ref<CouponOffer[]>([])
-
+<script setup>
+import { onMounted, ref, watch } from 'vue';
+import { TicketPercent, X } from '@lucide/vue';
+import ZButton from '@/components/ui/ZButton.vue';
+import { useCartStore } from '@/stores/cart';
+import { cartApi } from '@/services/cart';
+import { errorMessage } from '@/services/errors';
+import { formatPrice } from '@/utils/format';
+const cart = useCartStore();
+const code = ref('');
+const error = ref(null);
+const applying = ref(false);
+const offers = ref([]);
 async function loadOffers() {
-  offers.value = await cartApi.availableCoupons().catch(() => [])
+    offers.value = await cartApi.availableCoupons().catch(() => []);
 }
-
-onMounted(loadOffers)
-watch(() => cart.cart?.summary.subtotal, loadOffers)
-
+onMounted(loadOffers);
+watch(() => cart.cart?.summary.subtotal, loadOffers);
 async function apply(value = code.value) {
-  error.value = null
-  if (!value.trim()) {
-    error.value = 'Enter a coupon code'
-    return
-  }
-  applying.value = true
-  try {
-    await cart.applyCoupon(value.trim())
-    code.value = ''
-  } catch (e) {
-    error.value = errorMessage(e)
-  } finally {
-    applying.value = false
-  }
+    error.value = null;
+    if (!value.trim()) {
+        error.value = 'Enter a coupon code';
+        return;
+    }
+    applying.value = true;
+    try {
+        await cart.applyCoupon(value.trim());
+        code.value = '';
+    }
+    catch (e) {
+        error.value = errorMessage(e);
+    }
+    finally {
+        applying.value = false;
+    }
 }
 </script>
 

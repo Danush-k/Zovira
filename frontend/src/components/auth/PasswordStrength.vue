@@ -1,21 +1,20 @@
-<script setup lang="ts">
-import { computed } from 'vue'
-import { Check } from '@lucide/vue'
-
-const props = defineProps<{ password: string }>()
-
+<script setup>
+import { computed } from 'vue';
+import { Check } from '@lucide/vue';
+const props = defineProps({
+    password: null
+});
 const rules = computed(() => [
-  { label: 'At least 8 characters', ok: props.password.length >= 8 },
-  { label: 'A letter and a number', ok: /[A-Za-z]/.test(props.password) && /\d/.test(props.password) },
-  {
-    label: 'Upper and lower case or a symbol',
-    ok: (/[a-z]/.test(props.password) && /[A-Z]/.test(props.password)) || /[^A-Za-z0-9]/.test(props.password),
-  },
-])
-
-const score = computed(() => rules.value.filter((r) => r.ok).length)
-const label = computed(() => ['Too weak', 'Weak', 'Good', 'Strong'][score.value])
-const barColor = computed(() => ['bg-ink-200', 'bg-danger', 'bg-accent-500', 'bg-success'][score.value])
+    { label: 'At least 8 characters', ok: props.password.length >= 8 },
+    { label: 'A letter and a number', ok: /[A-Za-z]/.test(props.password) && /\d/.test(props.password) },
+    {
+        label: 'Upper and lower case or a symbol',
+        ok: (/[a-z]/.test(props.password) && /[A-Z]/.test(props.password)) || /[^A-Za-z0-9]/.test(props.password),
+    },
+]);
+const score = computed(() => rules.value.filter((r) => r.ok).length);
+const label = computed(() => ['Too weak', 'Weak', 'Good', 'Strong'][score.value]);
+const barColor = computed(() => ['bg-ink-200', 'bg-danger', 'bg-accent-500', 'bg-success'][score.value]);
 </script>
 
 <template>

@@ -1,61 +1,59 @@
-<script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue'
-import { BadgeCheck, BarChart3, Clock, IndianRupee, Truck, XCircle } from '@lucide/vue'
-import ZButton from '@/components/ui/ZButton.vue'
-import ZInput from '@/components/ui/ZInput.vue'
-import ZTextarea from '@/components/ui/ZTextarea.vue'
-import ZSelect from '@/components/ui/ZSelect.vue'
-import FormAlert from '@/components/auth/FormAlert.vue'
-import EmailVerificationNotice from '@/components/account/EmailVerificationNotice.vue'
-import { sellerApi } from '@/services/seller'
-import { errorMessage, fieldErrors } from '@/services/errors'
-import { useAuthStore } from '@/stores/auth'
-import { INDIAN_STATES } from '@/utils/india'
-import type { SellerApplication, SellerProfile } from '@/types/seller'
-
-const auth = useAuthStore()
-const existing = ref<SellerProfile | null>(null)
-const checking = ref(true)
-const showForm = ref(false)
-const form = reactive<SellerApplication>({
-  storeName: '', description: '', gstin: '', supportEmail: '', supportPhone: '',
-  pickupLine1: '', pickupCity: '', pickupState: '', pickupPincode: '',
-})
-const errors = ref<Record<string, string>>({})
-const formError = ref<string | null>(null)
-const saving = ref(false)
-
+<script setup>
+import { onMounted, reactive, ref } from 'vue';
+import { BadgeCheck, BarChart3, Clock, IndianRupee, Truck, XCircle } from '@lucide/vue';
+import ZButton from '@/components/ui/ZButton.vue';
+import ZInput from '@/components/ui/ZInput.vue';
+import ZTextarea from '@/components/ui/ZTextarea.vue';
+import ZSelect from '@/components/ui/ZSelect.vue';
+import FormAlert from '@/components/auth/FormAlert.vue';
+import EmailVerificationNotice from '@/components/account/EmailVerificationNotice.vue';
+import { sellerApi } from '@/services/seller';
+import { errorMessage, fieldErrors } from '@/services/errors';
+import { useAuthStore } from '@/stores/auth';
+import { INDIAN_STATES } from '@/utils/india';
+const auth = useAuthStore();
+const existing = ref(null);
+const checking = ref(true);
+const showForm = ref(false);
+const form = reactive({
+    storeName: '', description: '', gstin: '', supportEmail: '', supportPhone: '',
+    pickupLine1: '', pickupCity: '', pickupState: '', pickupPincode: '',
+});
+const errors = ref({});
+const formError = ref(null);
+const saving = ref(false);
 const benefits = [
-  { icon: IndianRupee, title: 'Keep more of every sale', body: 'Transparent fees, weekly settlements and GST-ready invoices.' },
-  { icon: Truck, title: 'Delivery handled for you', body: 'Print a label, hand the package over, and we track it to the door.' },
-  { icon: BarChart3, title: 'Know what is working', body: 'Revenue, top products and stock alerts in one dashboard.' },
-  { icon: BadgeCheck, title: 'Reach ready-to-buy shoppers', body: 'Your listings appear across search, category and deal pages.' },
-]
-
+    { icon: IndianRupee, title: 'Keep more of every sale', body: 'Transparent fees, weekly settlements and GST-ready invoices.' },
+    { icon: Truck, title: 'Delivery handled for you', body: 'Print a label, hand the package over, and we track it to the door.' },
+    { icon: BarChart3, title: 'Know what is working', body: 'Revenue, top products and stock alerts in one dashboard.' },
+    { icon: BadgeCheck, title: 'Reach ready-to-buy shoppers', body: 'Your listings appear across search, category and deal pages.' },
+];
 onMounted(async () => {
-  if (auth.isAuthenticated) {
-    existing.value = await sellerApi.application().catch(() => null)
-    if (auth.user) {
-      form.supportEmail = auth.user.email
-      form.supportPhone = auth.user.phone ?? ''
+    if (auth.isAuthenticated) {
+        existing.value = await sellerApi.application().catch(() => null);
+        if (auth.user) {
+            form.supportEmail = auth.user.email;
+            form.supportPhone = auth.user.phone ?? '';
+        }
     }
-  }
-  checking.value = false
-})
-
+    checking.value = false;
+});
 async function submit() {
-  errors.value = {}
-  formError.value = null
-  saving.value = true
-  try {
-    existing.value = await sellerApi.apply({ ...form, gstin: form.gstin || undefined, description: form.description || undefined })
-    showForm.value = false
-  } catch (e) {
-    errors.value = fieldErrors(e)
-    if (!Object.keys(errors.value).length) formError.value = errorMessage(e)
-  } finally {
-    saving.value = false
-  }
+    errors.value = {};
+    formError.value = null;
+    saving.value = true;
+    try {
+        existing.value = await sellerApi.apply({ ...form, gstin: form.gstin || undefined, description: form.description || undefined });
+        showForm.value = false;
+    }
+    catch (e) {
+        errors.value = fieldErrors(e);
+        if (!Object.keys(errors.value).length)
+            formError.value = errorMessage(e);
+    }
+    finally {
+        saving.value = false;
+    }
 }
 </script>
 

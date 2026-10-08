@@ -1,5 +1,7 @@
-<script setup lang="ts">
-withDefaults(defineProps<{ label?: string }>(), { label: 'Loading' })
+<script setup>
+defineProps({
+    label: { default: 'Loading' }
+});
 </script>
 
 <template>

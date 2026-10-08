@@ -1,42 +1,44 @@
-<script setup lang="ts">
-import { reactive, ref, watchEffect } from 'vue'
-import ZButton from '@/components/ui/ZButton.vue'
-import ZInput from '@/components/ui/ZInput.vue'
-import ZBadge from '@/components/ui/ZBadge.vue'
-import { accountApi } from '@/services/account'
-import { errorMessage, fieldErrors } from '@/services/errors'
-import { useAuthStore } from '@/stores/auth'
-import { useToastStore } from '@/stores/toast'
-import { formatDate } from '@/utils/format'
-import { isValidMobile } from '@/utils/india'
-
-const auth = useAuthStore()
-const toast = useToastStore()
-
-const form = reactive({ fullName: '', phone: '' })
-const errors = ref<Record<string, string>>({})
-const saving = ref(false)
-
+<script setup>
+import { reactive, ref, watchEffect } from 'vue';
+import ZButton from '@/components/ui/ZButton.vue';
+import ZInput from '@/components/ui/ZInput.vue';
+import ZBadge from '@/components/ui/ZBadge.vue';
+import { accountApi } from '@/services/account';
+import { errorMessage, fieldErrors } from '@/services/errors';
+import { useAuthStore } from '@/stores/auth';
+import { useToastStore } from '@/stores/toast';
+import { formatDate } from '@/utils/format';
+import { isValidMobile } from '@/utils/india';
+const auth = useAuthStore();
+const toast = useToastStore();
+const form = reactive({ fullName: '', phone: '' });
+const errors = ref({});
+const saving = ref(false);
 watchEffect(() => {
-  form.fullName = auth.user?.fullName ?? ''
-  form.phone = auth.user?.phone ?? ''
-})
-
+    form.fullName = auth.user?.fullName ?? '';
+    form.phone = auth.user?.phone ?? '';
+});
 async function save() {
-  errors.value = {}
-  if (form.fullName.trim().length < 2) errors.value.fullName = 'Enter your full name'
-  if (form.phone && !isValidMobile(form.phone)) errors.value.phone = 'Enter a valid 10-digit mobile number'
-  if (Object.keys(errors.value).length) return
-  saving.value = true
-  try {
-    auth.setUser(await accountApi.updateProfile(form.fullName.trim(), form.phone.trim() || null))
-    toast.success('Profile updated')
-  } catch (e) {
-    errors.value = fieldErrors(e)
-    if (!Object.keys(errors.value).length) toast.error("Couldn't save your profile", errorMessage(e))
-  } finally {
-    saving.value = false
-  }
+    errors.value = {};
+    if (form.fullName.trim().length < 2)
+        errors.value.fullName = 'Enter your full name';
+    if (form.phone && !isValidMobile(form.phone))
+        errors.value.phone = 'Enter a valid 10-digit mobile number';
+    if (Object.keys(errors.value).length)
+        return;
+    saving.value = true;
+    try {
+        auth.setUser(await accountApi.updateProfile(form.fullName.trim(), form.phone.trim() || null));
+        toast.success('Profile updated');
+    }
+    catch (e) {
+        errors.value = fieldErrors(e);
+        if (!Object.keys(errors.value).length)
+            toast.error("Couldn't save your profile", errorMessage(e));
+    }
+    finally {
+        saving.value = false;
+    }
 }
 </script>
 

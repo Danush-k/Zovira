@@ -1,8 +1,7 @@
-<script setup lang="ts">
-import { WifiOff } from '@lucide/vue'
-import { useOnline } from '@/composables/useOnline'
-
-const online = useOnline()
+<script setup>
+import { WifiOff } from '@lucide/vue';
+import { useOnline } from '@/composables/useOnline';
+const online = useOnline();
 </script>
 
 <template>

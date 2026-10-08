@@ -1,44 +1,46 @@
-<script setup lang="ts">
-import { reactive, ref, watch } from 'vue'
-import ZDialog from '@/components/ui/ZDialog.vue'
-import ZButton from '@/components/ui/ZButton.vue'
-import ZSelect from '@/components/ui/ZSelect.vue'
-import ZTextarea from '@/components/ui/ZTextarea.vue'
-import FormAlert from '@/components/auth/FormAlert.vue'
-import { ordersApi, RETURN_REASONS } from '@/services/orders'
-import { errorMessage } from '@/services/errors'
-import type { OrderItem } from '@/types/order'
-import { formatDate, formatPrice } from '@/utils/format'
-
-const props = defineProps<{ orderNumber: string; item: OrderItem | null }>()
-const emit = defineEmits<{ done: [] }>()
-const open = defineModel<boolean>('open', { default: false })
-
-const form = reactive({ quantity: 1, reason: '', comments: '' })
-const error = ref<string | null>(null)
-const saving = ref(false)
-
+<script setup>
+import { reactive, ref, watch } from 'vue';
+import ZDialog from '@/components/ui/ZDialog.vue';
+import ZButton from '@/components/ui/ZButton.vue';
+import ZSelect from '@/components/ui/ZSelect.vue';
+import ZTextarea from '@/components/ui/ZTextarea.vue';
+import FormAlert from '@/components/auth/FormAlert.vue';
+import { ordersApi, RETURN_REASONS } from '@/services/orders';
+import { errorMessage } from '@/services/errors';
+import { formatDate, formatPrice } from '@/utils/format';
+const props = defineProps({
+    orderNumber: null,
+    item: null
+});
+const emit = defineEmits(["done"]);
+const open = defineModel('open', { default: false });
+const form = reactive({ quantity: 1, reason: '', comments: '' });
+const error = ref(null);
+const saving = ref(false);
 watch(open, (v) => {
-  if (v) Object.assign(form, { quantity: 1, reason: '', comments: '' })
-  error.value = null
-})
-
+    if (v)
+        Object.assign(form, { quantity: 1, reason: '', comments: '' });
+    error.value = null;
+});
 async function submit() {
-  if (!props.item) return
-  if (!form.reason) {
-    error.value = 'Choose a reason for the return'
-    return
-  }
-  saving.value = true
-  try {
-    await ordersApi.requestReturn(props.orderNumber, props.item.id, { ...form, comments: form.comments || undefined })
-    open.value = false
-    emit('done')
-  } catch (e) {
-    error.value = errorMessage(e)
-  } finally {
-    saving.value = false
-  }
+    if (!props.item)
+        return;
+    if (!form.reason) {
+        error.value = 'Choose a reason for the return';
+        return;
+    }
+    saving.value = true;
+    try {
+        await ordersApi.requestReturn(props.orderNumber, props.item.id, { ...form, comments: form.comments || undefined });
+        open.value = false;
+        emit('done');
+    }
+    catch (e) {
+        error.value = errorMessage(e);
+    }
+    finally {
+        saving.value = false;
+    }
 }
 </script>
 

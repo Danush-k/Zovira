@@ -1,7 +1,8 @@
-<script setup lang="ts">
-import type { SpecGroup } from '@/types/catalog'
+<script setup>
+defineProps({
+    groups: null
+});
 
-defineProps<{ groups: SpecGroup[] }>()
 </script>
 
 <template>

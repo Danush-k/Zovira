@@ -1,91 +1,89 @@
-<script setup lang="ts">
-import { computed, ref, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { ArrowLeft, Download, MapPin, RotateCcw, Truck } from '@lucide/vue'
-import ZButton from '@/components/ui/ZButton.vue'
-import ZDialog from '@/components/ui/ZDialog.vue'
-import ZSelect from '@/components/ui/ZSelect.vue'
-import ZErrorState from '@/components/ui/ZErrorState.vue'
-import OrderStatusBadge from '@/components/order/OrderStatusBadge.vue'
-import TrackingTimeline from '@/components/order/TrackingTimeline.vue'
-import ReturnDialog from '@/components/order/ReturnDialog.vue'
-import { ordersApi } from '@/services/orders'
-import { errorMessage } from '@/services/errors'
-import { useAsync } from '@/composables/useAsync'
-import { useCartStore } from '@/stores/cart'
-import { useToastStore } from '@/stores/toast'
-import { formatDate, formatDateTime, formatPrice } from '@/utils/format'
-import type { OrderItem } from '@/types/order'
-
-const route = useRoute()
-const router = useRouter()
-const cart = useCartStore()
-const toast = useToastStore()
-const number = computed(() => String(route.params.number))
-const { data: order, loading, error, execute } = useAsync((n: string) => ordersApi.detail(n))
-watch(number, (n) => void execute(n), { immediate: true })
-
-const cancelOpen = ref(false)
-const cancelReason = ref('')
-const cancelling = ref(false)
-const returnItem = ref<OrderItem | null>(null)
-const returnOpen = ref(false)
-const downloading = ref(false)
-
+<script setup>
+import { computed, ref, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { ArrowLeft, Download, MapPin, RotateCcw, Truck } from '@lucide/vue';
+import ZButton from '@/components/ui/ZButton.vue';
+import ZDialog from '@/components/ui/ZDialog.vue';
+import ZSelect from '@/components/ui/ZSelect.vue';
+import ZErrorState from '@/components/ui/ZErrorState.vue';
+import OrderStatusBadge from '@/components/order/OrderStatusBadge.vue';
+import TrackingTimeline from '@/components/order/TrackingTimeline.vue';
+import ReturnDialog from '@/components/order/ReturnDialog.vue';
+import { ordersApi } from '@/services/orders';
+import { errorMessage } from '@/services/errors';
+import { useAsync } from '@/composables/useAsync';
+import { useCartStore } from '@/stores/cart';
+import { useToastStore } from '@/stores/toast';
+import { formatDate, formatDateTime, formatPrice } from '@/utils/format';
+const route = useRoute();
+const router = useRouter();
+const cart = useCartStore();
+const toast = useToastStore();
+const number = computed(() => String(route.params.number));
+const { data: order, loading, error, execute } = useAsync((n) => ordersApi.detail(n));
+watch(number, (n) => void execute(n), { immediate: true });
+const cancelOpen = ref(false);
+const cancelReason = ref('');
+const cancelling = ref(false);
+const returnItem = ref(null);
+const returnOpen = ref(false);
+const downloading = ref(false);
 const reasons = [
-  'Ordered by mistake',
-  'Found a better price elsewhere',
-  'Delivery date is too late',
-  'Want to change the address or items',
-  'Other',
-].map((r) => ({ value: r, label: r }))
-
-const canInvoice = computed(() => order.value && !['PENDING_PAYMENT', 'PLACED', 'CANCELLED', 'PAYMENT_FAILED'].includes(order.value.status))
-
+    'Ordered by mistake',
+    'Found a better price elsewhere',
+    'Delivery date is too late',
+    'Want to change the address or items',
+    'Other',
+].map((r) => ({ value: r, label: r }));
+const canInvoice = computed(() => order.value && !['PENDING_PAYMENT', 'PLACED', 'CANCELLED', 'PAYMENT_FAILED'].includes(order.value.status));
 async function cancel() {
-  if (!cancelReason.value) return
-  cancelling.value = true
-  try {
-    order.value = await ordersApi.cancel(number.value, cancelReason.value)
-    cancelOpen.value = false
-    toast.success('Order cancelled', order.value.paymentStatus === 'REFUNDED' ? 'Your refund has been issued.' : undefined)
-  } catch (e) {
-    toast.error("Couldn't cancel the order", errorMessage(e))
-  } finally {
-    cancelling.value = false
-  }
+    if (!cancelReason.value)
+        return;
+    cancelling.value = true;
+    try {
+        order.value = await ordersApi.cancel(number.value, cancelReason.value);
+        cancelOpen.value = false;
+        toast.success('Order cancelled', order.value.paymentStatus === 'REFUNDED' ? 'Your refund has been issued.' : undefined);
+    }
+    catch (e) {
+        toast.error("Couldn't cancel the order", errorMessage(e));
+    }
+    finally {
+        cancelling.value = false;
+    }
 }
-
 async function invoice() {
-  downloading.value = true
-  try {
-    await ordersApi.downloadInvoice(number.value)
-  } catch (e) {
-    toast.error("Couldn't download invoice", errorMessage(e))
-  } finally {
-    downloading.value = false
-  }
+    downloading.value = true;
+    try {
+        await ordersApi.downloadInvoice(number.value);
+    }
+    catch (e) {
+        toast.error("Couldn't download invoice", errorMessage(e));
+    }
+    finally {
+        downloading.value = false;
+    }
 }
-
 async function buyAgain() {
-  try {
-    const r = await ordersApi.reorder(number.value)
-    await cart.load()
-    if (r.unavailable.length) toast.warning('Some items are unavailable', r.unavailable.join(', '))
-    if (r.added) await router.push('/cart')
-  } catch (e) {
-    toast.error("Couldn't add items to cart", errorMessage(e))
-  }
+    try {
+        const r = await ordersApi.reorder(number.value);
+        await cart.load();
+        if (r.unavailable.length)
+            toast.warning('Some items are unavailable', r.unavailable.join(', '));
+        if (r.added)
+            await router.push('/cart');
+    }
+    catch (e) {
+        toast.error("Couldn't add items to cart", errorMessage(e));
+    }
 }
-
-function startReturn(item: OrderItem) {
-  returnItem.value = item
-  returnOpen.value = true
+function startReturn(item) {
+    returnItem.value = item;
+    returnOpen.value = true;
 }
-
 async function onReturned() {
-  toast.success('Return requested', 'The seller will review it shortly.', { label: 'View returns', to: '/account/returns' })
-  await execute(number.value)
+    toast.success('Return requested', 'The seller will review it shortly.', { label: 'View returns', to: '/account/returns' });
+    await execute(number.value);
 }
 </script>
 

@@ -1,97 +1,101 @@
-<script setup lang="ts">
-import { reactive, ref, watch } from 'vue'
-import ZDialog from '@/components/ui/ZDialog.vue'
-import ZButton from '@/components/ui/ZButton.vue'
-import ZInput from '@/components/ui/ZInput.vue'
-import ZSelect from '@/components/ui/ZSelect.vue'
-import ZCheckbox from '@/components/ui/ZCheckbox.vue'
-import FormAlert from '@/components/auth/FormAlert.vue'
-import { accountApi } from '@/services/account'
-import { errorMessage, fieldErrors } from '@/services/errors'
-import { INDIAN_STATES, isValidMobile, isValidPincode } from '@/utils/india'
-import type { Address, AddressInput, AddressType } from '@/types/api'
-
-const props = defineProps<{ address?: Address | null; defaultName?: string; defaultPhone?: string | null }>()
-const emit = defineEmits<{ saved: [address: Address] }>()
-const open = defineModel<boolean>('open', { default: false })
-
-const blank = (): AddressInput => ({
-  fullName: props.defaultName ?? '',
-  phone: props.defaultPhone ?? '',
-  line1: '',
-  line2: '',
-  landmark: '',
-  city: '',
-  state: '',
-  pincode: '',
-  type: 'HOME',
-  makeDefault: false,
-})
-
-const form = reactive<AddressInput>(blank())
-const errors = ref<Record<string, string>>({})
-const formError = ref<string | null>(null)
-const saving = ref(false)
-
+<script setup>
+import { reactive, ref, watch } from 'vue';
+import ZDialog from '@/components/ui/ZDialog.vue';
+import ZButton from '@/components/ui/ZButton.vue';
+import ZInput from '@/components/ui/ZInput.vue';
+import ZSelect from '@/components/ui/ZSelect.vue';
+import ZCheckbox from '@/components/ui/ZCheckbox.vue';
+import FormAlert from '@/components/auth/FormAlert.vue';
+import { accountApi } from '@/services/account';
+import { errorMessage, fieldErrors } from '@/services/errors';
+import { INDIAN_STATES, isValidMobile, isValidPincode } from '@/utils/india';
+const props = defineProps({
+    address: null,
+    defaultName: null,
+    defaultPhone: null
+});
+const emit = defineEmits(["saved"]);
+const open = defineModel('open', { default: false });
+const blank = () => ({
+    fullName: props.defaultName ?? '',
+    phone: props.defaultPhone ?? '',
+    line1: '',
+    line2: '',
+    landmark: '',
+    city: '',
+    state: '',
+    pincode: '',
+    type: 'HOME',
+    makeDefault: false,
+});
+const form = reactive(blank());
+const errors = ref({});
+const formError = ref(null);
+const saving = ref(false);
 watch(open, (isOpen) => {
-  if (!isOpen) return
-  errors.value = {}
-  formError.value = null
-  const a = props.address
-  Object.assign(
-    form,
-    a
-      ? {
-          fullName: a.fullName,
-          phone: a.phone,
-          line1: a.line1,
-          line2: a.line2 ?? '',
-          landmark: a.landmark ?? '',
-          city: a.city,
-          state: a.state,
-          pincode: a.pincode,
-          type: a.type,
-          makeDefault: a.isDefault,
+    if (!isOpen)
+        return;
+    errors.value = {};
+    formError.value = null;
+    const a = props.address;
+    Object.assign(form, a
+        ? {
+            fullName: a.fullName,
+            phone: a.phone,
+            line1: a.line1,
+            line2: a.line2 ?? '',
+            landmark: a.landmark ?? '',
+            city: a.city,
+            state: a.state,
+            pincode: a.pincode,
+            type: a.type,
+            makeDefault: a.isDefault,
         }
-      : blank(),
-  )
-})
-
-const types: { value: AddressType; label: string }[] = [
-  { value: 'HOME', label: 'Home' },
-  { value: 'WORK', label: 'Work' },
-  { value: 'OTHER', label: 'Other' },
-]
-const stateOptions = INDIAN_STATES.map((s) => ({ value: s, label: s }))
-
+        : blank());
+});
+const types = [
+    { value: 'HOME', label: 'Home' },
+    { value: 'WORK', label: 'Work' },
+    { value: 'OTHER', label: 'Other' },
+];
+const stateOptions = INDIAN_STATES.map((s) => ({ value: s, label: s }));
 function validate() {
-  const e: Record<string, string> = {}
-  if (!form.fullName.trim()) e.fullName = "Enter the recipient's name"
-  if (!isValidMobile(form.phone)) e.phone = 'Enter a valid 10-digit mobile number'
-  if (!isValidPincode(form.pincode)) e.pincode = 'Enter a valid 6-digit PIN code'
-  if (!form.line1.trim()) e.line1 = 'Enter the house number and street'
-  if (!form.city.trim()) e.city = 'Enter a city'
-  if (!form.state) e.state = 'Select a state'
-  errors.value = e
-  return !Object.keys(e).length
+    const e = {};
+    if (!form.fullName.trim())
+        e.fullName = "Enter the recipient's name";
+    if (!isValidMobile(form.phone))
+        e.phone = 'Enter a valid 10-digit mobile number';
+    if (!isValidPincode(form.pincode))
+        e.pincode = 'Enter a valid 6-digit PIN code';
+    if (!form.line1.trim())
+        e.line1 = 'Enter the house number and street';
+    if (!form.city.trim())
+        e.city = 'Enter a city';
+    if (!form.state)
+        e.state = 'Select a state';
+    errors.value = e;
+    return !Object.keys(e).length;
 }
-
 async function save() {
-  formError.value = null
-  if (!validate()) return
-  saving.value = true
-  try {
-    const saved = props.address
-      ? await accountApi.updateAddress(props.address.id, form)
-      : await accountApi.createAddress(form)
-    emit('saved', saved)
-    open.value = false
-  } catch (e) {
-    errors.value = fieldErrors(e)
-    if (!Object.keys(errors.value).length) formError.value = errorMessage(e)
-  } finally {
-    saving.value = false
-  }
+    formError.value = null;
+    if (!validate())
+        return;
+    saving.value = true;
+    try {
+        const saved = props.address
+            ? await accountApi.updateAddress(props.address.id, form)
+            : await accountApi.createAddress(form);
+        emit('saved', saved);
+        open.value = false;
+    }
+    catch (e) {
+        errors.value = fieldErrors(e);
+        if (!Object.keys(errors.value).length)
+            formError.value = errorMessage(e);
+    }
+    finally {
+        saving.value = false;
+    }
 }
 </script>
 

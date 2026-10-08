@@ -1,40 +1,35 @@
-<script setup lang="ts">
-import { computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { ShieldCheck, ShoppingBag, Truck } from '@lucide/vue'
-import ZButton from '@/components/ui/ZButton.vue'
-import ZEmptyState from '@/components/ui/ZEmptyState.vue'
-import CartLine from '@/components/cart/CartLine.vue'
-import OrderSummary from '@/components/cart/OrderSummary.vue'
-import CouponBox from '@/components/cart/CouponBox.vue'
-import { useCartStore } from '@/stores/cart'
-import { useAuthStore } from '@/stores/auth'
-import { useToastStore } from '@/stores/toast'
-import { errorMessage } from '@/services/errors'
-import { formatPrice } from '@/utils/format'
-import type { CartItem } from '@/types/cart'
-
-const cart = useCartStore()
-const auth = useAuthStore()
-const toast = useToastStore()
-const router = useRouter()
-
-onMounted(() => cart.load().catch((e) => toast.error("Couldn't load your cart", errorMessage(e))))
-
-const data = computed(() => cart.cart)
-const busy = (item: CartItem) => cart.pending.has(item.id ?? item.variantId) || cart.pending.has(item.variantId)
-const blocked = computed(() => !!data.value?.items.some((i) => !i.purchasable))
-
-async function run(fn: () => Promise<unknown>, failure: string) {
-  try {
-    await fn()
-  } catch (e) {
-    toast.error(failure, errorMessage(e))
-  }
+<script setup>
+import { computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { ShieldCheck, ShoppingBag, Truck } from '@lucide/vue';
+import ZButton from '@/components/ui/ZButton.vue';
+import ZEmptyState from '@/components/ui/ZEmptyState.vue';
+import CartLine from '@/components/cart/CartLine.vue';
+import OrderSummary from '@/components/cart/OrderSummary.vue';
+import CouponBox from '@/components/cart/CouponBox.vue';
+import { useCartStore } from '@/stores/cart';
+import { useAuthStore } from '@/stores/auth';
+import { useToastStore } from '@/stores/toast';
+import { errorMessage } from '@/services/errors';
+import { formatPrice } from '@/utils/format';
+const cart = useCartStore();
+const auth = useAuthStore();
+const toast = useToastStore();
+const router = useRouter();
+onMounted(() => cart.load().catch((e) => toast.error("Couldn't load your cart", errorMessage(e))));
+const data = computed(() => cart.cart);
+const busy = (item) => cart.pending.has(item.id ?? item.variantId) || cart.pending.has(item.variantId);
+const blocked = computed(() => !!data.value?.items.some((i) => !i.purchasable));
+async function run(fn, failure) {
+    try {
+        await fn();
+    }
+    catch (e) {
+        toast.error(failure, errorMessage(e));
+    }
 }
-
 function checkout() {
-  void router.push(auth.isAuthenticated ? '/checkout' : '/login?redirect=/checkout')
+    void router.push(auth.isAuthenticated ? '/checkout' : '/login?redirect=/checkout');
 }
 </script>
 
@@ -69,7 +64,7 @@ function checkout() {
 v-for="item in data.items" :key="item.variantId" :item="item" :busy="busy(item)" :can-save="auth.isAuthenticated"
               @quantity="(q) => run(() => cart.setQuantity(item, q), 'Couldn\'t update quantity')"
               @remove="run(() => cart.remove(item), 'Couldn\'t remove item')"
-              @save="run(() => cart.saveForLater(item.id!), 'Couldn\'t save item')" />
+              @save="run(() => cart.saveForLater(item.id), 'Couldn\'t save item')" />
           </div>
         </section>
 
@@ -78,7 +73,7 @@ v-for="item in data.items" :key="item.variantId" :item="item" :busy="busy(item)"
           <div class="divide-y divide-ink-100">
             <CartLine
 v-for="item in data.savedForLater" :key="item.variantId" :item="item" saved :busy="busy(item)"
-              @move="run(() => cart.moveToCart(item.id!), 'Couldn\'t move item')"
+              @move="run(() => cart.moveToCart(item.id), 'Couldn\'t move item')"
               @remove="run(() => cart.remove(item), 'Couldn\'t remove item')" />
           </div>
         </section>

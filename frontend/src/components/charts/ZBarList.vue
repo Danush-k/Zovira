@@ -1,18 +1,10 @@
-<script setup lang="ts">
-import { computed } from 'vue'
-
-/** Horizontal magnitude comparison for named rows. Single hue; value labelled at the bar tip. */
-export interface BarRow {
-  key: string | number
-  label: string
-  value: number
-  meta?: string
-  imageUrl?: string | null
-  to?: string
-}
-
-const props = defineProps<{ rows: BarRow[]; format: (value: number) => string }>()
-const max = computed(() => Math.max(...props.rows.map((r) => r.value), 1))
+<script setup>
+import { computed } from 'vue';
+const props = defineProps({
+    rows: null,
+    format: null
+});
+const max = computed(() => Math.max(...props.rows.map((r) => r.value), 1));
 </script>
 
 <template>

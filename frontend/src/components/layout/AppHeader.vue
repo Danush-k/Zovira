@@ -1,26 +1,24 @@
-<script setup lang="ts">
-import { ref } from 'vue'
-import { MapPin, Menu, ShoppingBag } from '@lucide/vue'
-import SearchBox from '@/components/search/SearchBox.vue'
-import BrandLogo from '@/components/brand/BrandLogo.vue'
-import AccountMenu from './AccountMenu.vue'
-import CategoryNav from './CategoryNav.vue'
-import PincodeDialog from './PincodeDialog.vue'
-import { useLocationStore } from '@/stores/location'
-
-defineProps<{ cartCount?: number }>()
-const emit = defineEmits<{ menu: [] }>()
-
-const location = useLocationStore()
-const pincodeOpen = ref(false)
-const mobileSearch = ref<InstanceType<typeof SearchBox> | null>(null)
-
+<script setup>
+import { ref } from 'vue';
+import { MapPin, Menu, ShoppingBag } from '@lucide/vue';
+import SearchBox from '@/components/search/SearchBox.vue';
+import BrandLogo from '@/components/brand/BrandLogo.vue';
+import AccountMenu from './AccountMenu.vue';
+import CategoryNav from './CategoryNav.vue';
+import PincodeDialog from './PincodeDialog.vue';
+import { useLocationStore } from '@/stores/location';
+defineProps({
+    cartCount: null
+});
+const emit = defineEmits(["menu"]);
+const location = useLocationStore();
+const pincodeOpen = ref(false);
+const mobileSearch = ref(null);
 function focusSearch() {
-  window.scrollTo({ top: 0, behavior: 'smooth' })
-  mobileSearch.value?.focus()
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    mobileSearch.value?.focus();
 }
-
-defineExpose({ focusSearch })
+defineExpose({ focusSearch });
 </script>
 
 <template>

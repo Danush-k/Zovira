@@ -1,48 +1,36 @@
-<script setup lang="ts">
-import { computed, watch } from 'vue'
-import { GitCompareArrows, X } from '@lucide/vue'
-import ZButton from '@/components/ui/ZButton.vue'
-import ZEmptyState from '@/components/ui/ZEmptyState.vue'
-import ZErrorState from '@/components/ui/ZErrorState.vue'
-import ZPrice from '@/components/ui/ZPrice.vue'
-import ZRatingPill from '@/components/ui/ZRatingPill.vue'
-import { catalogApi } from '@/services/catalog'
-import { useAsync } from '@/composables/useAsync'
-import { useCompareStore } from '@/stores/compare'
-import type { ProductDetail } from '@/types/catalog'
-
-const compare = useCompareStore()
-const { data: products, loading, error, execute } = useAsync((slugs: string[]) =>
-  slugs.length ? catalogApi.compare(slugs) : Promise.resolve([] as ProductDetail[]),
-)
-
-watch(
-  () => compare.items.map((i) => i.slug).join(','),
-  () => void execute(compare.items.map((i) => i.slug)),
-  { immediate: true },
-)
-
+<script setup>
+import { computed, watch } from 'vue';
+import { GitCompareArrows, X } from '@lucide/vue';
+import ZButton from '@/components/ui/ZButton.vue';
+import ZEmptyState from '@/components/ui/ZEmptyState.vue';
+import ZErrorState from '@/components/ui/ZErrorState.vue';
+import ZPrice from '@/components/ui/ZPrice.vue';
+import ZRatingPill from '@/components/ui/ZRatingPill.vue';
+import { catalogApi } from '@/services/catalog';
+import { useAsync } from '@/composables/useAsync';
+import { useCompareStore } from '@/stores/compare';
+const compare = useCompareStore();
+const { data: products, loading, error, execute } = useAsync((slugs) => slugs.length ? catalogApi.compare(slugs) : Promise.resolve([]));
+watch(() => compare.items.map((i) => i.slug).join(','), () => void execute(compare.items.map((i) => i.slug)), { immediate: true });
 /** Union of every specification row across the compared products, grouped. */
 const rows = computed(() => {
-  const list = products.value ?? []
-  const groups = new Map<string, Set<string>>()
-  for (const p of list) {
-    for (const g of p.specifications) {
-      const names = groups.get(g.group) ?? new Set<string>()
-      g.items.forEach((i) => names.add(i.name))
-      groups.set(g.group, names)
+    const list = products.value ?? [];
+    const groups = new Map();
+    for (const p of list) {
+        for (const g of p.specifications) {
+            const names = groups.get(g.group) ?? new Set();
+            g.items.forEach((i) => names.add(i.name));
+            groups.set(g.group, names);
+        }
     }
-  }
-  return [...groups.entries()].map(([group, names]) => ({ group, names: [...names] }))
-})
-
-function spec(p: ProductDetail, group: string, name: string) {
-  return p.specifications.find((g) => g.group === group)?.items.find((i) => i.name === name)?.value ?? '—'
+    return [...groups.entries()].map(([group, names]) => ({ group, names: [...names] }));
+});
+function spec(p, group, name) {
+    return p.specifications.find((g) => g.group === group)?.items.find((i) => i.name === name)?.value ?? '—';
 }
-
-function price(p: ProductDetail) {
-  const v = p.variants.find((x) => x.id === p.defaultVariantId) ?? p.variants[0]
-  return v
+function price(p) {
+    const v = p.variants.find((x) => x.id === p.defaultVariantId) ?? p.variants[0];
+    return v;
 }
 </script>
 
@@ -97,7 +85,7 @@ function price(p: ProductDetail) {
           <tr>
             <th scope="row" class="p-4 text-left font-medium text-ink-500">Price</th>
             <td v-for="p in products" :key="p.slug" class="p-4">
-              <ZPrice v-if="price(p)" :price="price(p)!.price" :mrp="price(p)!.mrp" size="sm" />
+              <ZPrice v-if="price(p)" :price="price(p)?.price" :mrp="price(p)?.mrp" size="sm" />
             </td>
           </tr>
           <tr>

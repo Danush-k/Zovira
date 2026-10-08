@@ -1,148 +1,145 @@
-<script setup lang="ts">
-import { computed, ref, watch } from 'vue'
-import { useRoute, useRouter, type LocationQuery } from 'vue-router'
-import { SearchX, SlidersHorizontal, Store as StoreIcon, X } from '@lucide/vue'
-import ZBreadcrumbs, { type Crumb } from '@/components/ui/ZBreadcrumbs.vue'
-import ZButton from '@/components/ui/ZButton.vue'
-import ZDrawer from '@/components/ui/ZDrawer.vue'
-import ZEmptyState from '@/components/ui/ZEmptyState.vue'
-import ZErrorState from '@/components/ui/ZErrorState.vue'
-import ZPagination from '@/components/ui/ZPagination.vue'
-import ZRatingPill from '@/components/ui/ZRatingPill.vue'
-import ZSelect from '@/components/ui/ZSelect.vue'
-import ProductCard from '@/components/product/ProductCard.vue'
-import ProductCardSkeleton from '@/components/product/ProductCardSkeleton.vue'
-import FilterPanel from '@/components/search/FilterPanel.vue'
-import { searchApi } from '@/services/search'
-import { catalogApi } from '@/services/catalog'
-import { useAsync } from '@/composables/useAsync'
-import { useCatalogStore } from '@/stores/catalog'
-import type { SearchParams } from '@/types/search'
-import type { Brand, Store } from '@/types/catalog'
-import { formatDate, formatPrice, pluralize } from '@/utils/format'
-
-const route = useRoute()
-const router = useRouter()
-const catalog = useCatalogStore()
-const filtersOpen = ref(false)
-
-const mode = computed(() => route.name as 'search' | 'category' | 'brand' | 'store')
-const slug = computed(() => (route.params.slug ? String(route.params.slug) : undefined))
-
-const num = (v: unknown) => (typeof v === 'string' && v !== '' && !isNaN(Number(v)) ? Number(v) : undefined)
-const str = (v: unknown) => (typeof v === 'string' && v !== '' ? v : undefined)
-
-function paramsFrom(query: LocationQuery): SearchParams {
-  return {
-    q: str(query.q),
-    category: mode.value === 'category' ? slug.value : str(query.category),
-    brand: mode.value === 'brand' ? slug.value : str(query.brand),
-    seller: mode.value === 'store' ? slug.value : undefined,
-    minPrice: num(query.minPrice),
-    maxPrice: num(query.maxPrice),
-    rating: num(query.rating),
-    discount: num(query.discount),
-    inStock: query.inStock === 'true' || undefined,
-    has3d: query.has3d === 'true' || undefined,
-    sort: str(query.sort),
-    page: num(query.page) ?? 0,
-    size: 24,
-  }
+<script setup>
+import { computed, ref, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { SearchX, SlidersHorizontal, Store as StoreIcon, X } from '@lucide/vue';
+import ZBreadcrumbs, {} from '@/components/ui/ZBreadcrumbs.vue';
+import ZButton from '@/components/ui/ZButton.vue';
+import ZDrawer from '@/components/ui/ZDrawer.vue';
+import ZEmptyState from '@/components/ui/ZEmptyState.vue';
+import ZErrorState from '@/components/ui/ZErrorState.vue';
+import ZPagination from '@/components/ui/ZPagination.vue';
+import ZRatingPill from '@/components/ui/ZRatingPill.vue';
+import ZSelect from '@/components/ui/ZSelect.vue';
+import ProductCard from '@/components/product/ProductCard.vue';
+import ProductCardSkeleton from '@/components/product/ProductCardSkeleton.vue';
+import FilterPanel from '@/components/search/FilterPanel.vue';
+import { searchApi } from '@/services/search';
+import { catalogApi } from '@/services/catalog';
+import { useAsync } from '@/composables/useAsync';
+import { useCatalogStore } from '@/stores/catalog';
+import { formatDate, formatPrice, pluralize } from '@/utils/format';
+const route = useRoute();
+const router = useRouter();
+const catalog = useCatalogStore();
+const filtersOpen = ref(false);
+const mode = computed(() => route.name);
+const slug = computed(() => (route.params.slug ? String(route.params.slug) : undefined));
+const num = (v) => (typeof v === 'string' && v !== '' && !isNaN(Number(v)) ? Number(v) : undefined);
+const str = (v) => (typeof v === 'string' && v !== '' ? v : undefined);
+function paramsFrom(query) {
+    return {
+        q: str(query.q),
+        category: mode.value === 'category' ? slug.value : str(query.category),
+        brand: mode.value === 'brand' ? slug.value : str(query.brand),
+        seller: mode.value === 'store' ? slug.value : undefined,
+        minPrice: num(query.minPrice),
+        maxPrice: num(query.maxPrice),
+        rating: num(query.rating),
+        discount: num(query.discount),
+        inStock: query.inStock === 'true' || undefined,
+        has3d: query.has3d === 'true' || undefined,
+        sort: str(query.sort),
+        page: num(query.page) ?? 0,
+        size: 24,
+    };
 }
-
-const params = computed(() => paramsFrom(route.query))
-const { data, loading, error, execute } = useAsync((p: SearchParams) => searchApi.search(p))
-const brandInfo = ref<Brand | null>(null)
-const storeInfo = ref<Store | null>(null)
-
-watch(
-  () => route.fullPath,
-  () => {
-    if (!['search', 'category', 'brand', 'store'].includes(String(route.name))) return
-    void execute(params.value)
-  },
-  { immediate: true },
-)
-
-watch(
-  [mode, slug],
-  async ([m, s]) => {
-    brandInfo.value = null
-    storeInfo.value = null
-    if (m === 'brand' && s) brandInfo.value = await catalogApi.brand(s).catch(() => null)
-    if (m === 'store' && s) storeInfo.value = await catalogApi.store(s).catch(() => null)
-    if (m === 'category') await catalog.loadCategories().catch(() => undefined)
-  },
-  { immediate: true },
-)
-
-const category = computed(() => (mode.value === 'category' && slug.value ? catalog.findBySlug(slug.value) : null))
-
+const params = computed(() => paramsFrom(route.query));
+const { data, loading, error, execute } = useAsync((p) => searchApi.search(p));
+const brandInfo = ref(null);
+const storeInfo = ref(null);
+watch(() => route.fullPath, () => {
+    if (!['search', 'category', 'brand', 'store'].includes(String(route.name)))
+        return;
+    void execute(params.value);
+}, { immediate: true });
+watch([mode, slug], async ([m, s]) => {
+    brandInfo.value = null;
+    storeInfo.value = null;
+    if (m === 'brand' && s)
+        brandInfo.value = await catalogApi.brand(s).catch(() => null);
+    if (m === 'store' && s)
+        storeInfo.value = await catalogApi.store(s).catch(() => null);
+    if (m === 'category')
+        await catalog.loadCategories().catch(() => undefined);
+}, { immediate: true });
+const category = computed(() => (mode.value === 'category' && slug.value ? catalog.findBySlug(slug.value) : null));
 const heading = computed(() => {
-  if (mode.value === 'category') return category.value?.name ?? 'Category'
-  if (mode.value === 'brand') return brandInfo.value?.name ?? 'Brand'
-  if (mode.value === 'store') return storeInfo.value?.seller.storeName ?? 'Store'
-  if (params.value.q) return `Results for “${params.value.q}”`
-  if (params.value.has3d) return 'Explore in 3D and AR'
-  if (params.value.sort === 'discount') return "Today's deals"
-  return 'All products'
-})
-
-const crumbs = computed<Crumb[]>(() => {
-  const items: Crumb[] = [{ label: 'Home', to: '/' }]
-  if (category.value?.parent) items.push({ label: category.value.parent.name, to: `/c/${category.value.parent.slug}` })
-  items.push({ label: heading.value })
-  return items
-})
-
+    if (mode.value === 'category')
+        return category.value?.name ?? 'Category';
+    if (mode.value === 'brand')
+        return brandInfo.value?.name ?? 'Brand';
+    if (mode.value === 'store')
+        return storeInfo.value?.seller.storeName ?? 'Store';
+    if (params.value.q)
+        return `Results for “${params.value.q}”`;
+    if (params.value.has3d)
+        return 'Explore in 3D and AR';
+    if (params.value.sort === 'discount')
+        return "Today's deals";
+    return 'All products';
+});
+const crumbs = computed(() => {
+    const items = [{ label: 'Home', to: '/' }];
+    if (category.value?.parent)
+        items.push({ label: category.value.parent.name, to: `/c/${category.value.parent.slug}` });
+    items.push({ label: heading.value });
+    return items;
+});
 const sortOptions = computed(() => [
-  ...(params.value.q ? [{ value: 'relevance', label: 'Relevance' }] : []),
-  { value: 'popular', label: 'Popularity' },
-  { value: 'price_asc', label: 'Price: low to high' },
-  { value: 'price_desc', label: 'Price: high to low' },
-  { value: 'newest', label: 'Newest first' },
-  { value: 'rating', label: 'Customer rating' },
-  { value: 'discount', label: 'Discount' },
-])
-const currentSort = computed(() => (data.value?.sort ?? 'POPULAR').toLowerCase())
-
-function update(patch: Partial<SearchParams>) {
-  const query: Record<string, string> = {}
-  const merged = { ...params.value, ...patch, page: 'page' in patch ? patch.page : 0 }
-  for (const [key, value] of Object.entries(merged)) {
-    if (value === undefined || value === null || value === '' || value === false) continue
-    if (key === 'size' || (key === 'page' && value === 0)) continue
-    if ((key === 'category' && mode.value === 'category') || (key === 'brand' && mode.value === 'brand')) continue
-    if (key === 'seller') continue
-    query[key] = String(value)
-  }
-  void router.push({ query })
-  if ('page' in patch) window.scrollTo({ top: 0, behavior: 'smooth' })
+    ...(params.value.q ? [{ value: 'relevance', label: 'Relevance' }] : []),
+    { value: 'popular', label: 'Popularity' },
+    { value: 'price_asc', label: 'Price: low to high' },
+    { value: 'price_desc', label: 'Price: high to low' },
+    { value: 'newest', label: 'Newest first' },
+    { value: 'rating', label: 'Customer rating' },
+    { value: 'discount', label: 'Discount' },
+]);
+const currentSort = computed(() => (data.value?.sort ?? 'POPULAR').toLowerCase());
+function update(patch) {
+    const query = {};
+    const merged = { ...params.value, ...patch, page: 'page' in patch ? patch.page : 0 };
+    for (const [key, value] of Object.entries(merged)) {
+        if (value === undefined || value === null || value === '' || value === false)
+            continue;
+        if (key === 'size' || (key === 'page' && value === 0))
+            continue;
+        if ((key === 'category' && mode.value === 'category') || (key === 'brand' && mode.value === 'brand'))
+            continue;
+        if (key === 'seller')
+            continue;
+        query[key] = String(value);
+    }
+    void router.push({ query });
+    if ('page' in patch)
+        window.scrollTo({ top: 0, behavior: 'smooth' });
 }
-
 const chips = computed(() => {
-  const p = params.value
-  const out: { label: string; clear: Partial<SearchParams> }[] = []
-  if (p.category && mode.value !== 'category') out.push({ label: catalog.findBySlug(p.category)?.name ?? p.category, clear: { category: undefined } })
-  if (p.brand && mode.value !== 'brand')
-    p.brand.split(',').forEach((b) => {
-      const name = data.value?.facets.brands.find((f) => f.slug === b)?.name ?? b
-      out.push({ label: name, clear: { brand: p.brand!.split(',').filter((x) => x !== b).join(',') || undefined } })
-    })
-  if (p.minPrice != null || p.maxPrice != null)
-    out.push({
-      label: p.maxPrice != null ? `${formatPrice(p.minPrice ?? 0)} to ${formatPrice(p.maxPrice)}` : `Over ${formatPrice(p.minPrice!)}`,
-      clear: { minPrice: undefined, maxPrice: undefined },
-    })
-  if (p.rating) out.push({ label: `${p.rating} stars and above`, clear: { rating: undefined } })
-  if (p.discount) out.push({ label: `${p.discount}% off or more`, clear: { discount: undefined } })
-  if (p.inStock) out.push({ label: 'In stock', clear: { inStock: undefined } })
-  if (p.has3d) out.push({ label: '3D and AR', clear: { has3d: undefined } })
-  return out
-})
-
+    const p = params.value;
+    const out = [];
+    if (p.category && mode.value !== 'category')
+        out.push({ label: catalog.findBySlug(p.category)?.name ?? p.category, clear: { category: undefined } });
+    if (p.brand && mode.value !== 'brand')
+        p.brand.split(',').forEach((b) => {
+            const name = data.value?.facets.brands.find((f) => f.slug === b)?.name ?? b;
+            out.push({ label: name, clear: { brand: p.brand.split(',').filter((x) => x !== b).join(',') || undefined } });
+        });
+    if (p.minPrice != null || p.maxPrice != null)
+        out.push({
+            label: p.maxPrice != null ? `${formatPrice(p.minPrice ?? 0)} to ${formatPrice(p.maxPrice)}` : `Over ${formatPrice(p.minPrice)}`,
+            clear: { minPrice: undefined, maxPrice: undefined },
+        });
+    if (p.rating)
+        out.push({ label: `${p.rating} stars and above`, clear: { rating: undefined } });
+    if (p.discount)
+        out.push({ label: `${p.discount}% off or more`, clear: { discount: undefined } });
+    if (p.inStock)
+        out.push({ label: 'In stock', clear: { inStock: undefined } });
+    if (p.has3d)
+        out.push({ label: '3D and AR', clear: { has3d: undefined } });
+    return out;
+});
 function clearAll() {
-  update({ category: mode.value === 'category' ? params.value.category : undefined, brand: mode.value === 'brand' ? params.value.brand : undefined, minPrice: undefined, maxPrice: undefined, rating: undefined, discount: undefined, inStock: undefined, has3d: undefined })
+    update({ category: mode.value === 'category' ? params.value.category : undefined, brand: mode.value === 'brand' ? params.value.brand : undefined, minPrice: undefined, maxPrice: undefined, rating: undefined, discount: undefined, inStock: undefined, has3d: undefined });
 }
 </script>
 

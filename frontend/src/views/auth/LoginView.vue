@@ -1,48 +1,49 @@
-<script setup lang="ts">
-import { reactive, ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { Lock, Mail } from '@lucide/vue'
-import ZButton from '@/components/ui/ZButton.vue'
-import ZInput from '@/components/ui/ZInput.vue'
-import FormAlert from '@/components/auth/FormAlert.vue'
-import DemoAccounts from '@/components/auth/DemoAccounts.vue'
-import { useAuthStore } from '@/stores/auth'
-import { errorMessage, fieldErrors } from '@/services/errors'
-import { safeRedirect } from '@/router/redirect'
-
-const auth = useAuthStore()
-const route = useRoute()
-const router = useRouter()
-
-const form = reactive({ email: '', password: '' })
-const errors = ref<Record<string, string>>({})
-const formError = ref<string | null>(null)
-const submitting = ref(false)
-const demoMode = import.meta.env.VITE_DEMO_MODE === 'true'
-
+<script setup>
+import { reactive, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { Lock, Mail } from '@lucide/vue';
+import ZButton from '@/components/ui/ZButton.vue';
+import ZInput from '@/components/ui/ZInput.vue';
+import FormAlert from '@/components/auth/FormAlert.vue';
+import DemoAccounts from '@/components/auth/DemoAccounts.vue';
+import { useAuthStore } from '@/stores/auth';
+import { errorMessage, fieldErrors } from '@/services/errors';
+import { safeRedirect } from '@/router/redirect';
+const auth = useAuthStore();
+const route = useRoute();
+const router = useRouter();
+const form = reactive({ email: '', password: '' });
+const errors = ref({});
+const formError = ref(null);
+const submitting = ref(false);
+const demoMode = import.meta.env.VITE_DEMO_MODE === 'true';
 async function submit() {
-  errors.value = {}
-  formError.value = null
-  if (!form.email.trim()) errors.value.email = 'Enter your email address'
-  if (!form.password) errors.value.password = 'Enter your password'
-  if (Object.keys(errors.value).length) return
-
-  submitting.value = true
-  try {
-    await auth.login(form.email.trim(), form.password)
-    await router.replace(safeRedirect(route.query.redirect))
-  } catch (e) {
-    errors.value = fieldErrors(e)
-    if (!Object.keys(errors.value).length) formError.value = errorMessage(e)
-  } finally {
-    submitting.value = false
-  }
+    errors.value = {};
+    formError.value = null;
+    if (!form.email.trim())
+        errors.value.email = 'Enter your email address';
+    if (!form.password)
+        errors.value.password = 'Enter your password';
+    if (Object.keys(errors.value).length)
+        return;
+    submitting.value = true;
+    try {
+        await auth.login(form.email.trim(), form.password);
+        await router.replace(safeRedirect(route.query.redirect));
+    }
+    catch (e) {
+        errors.value = fieldErrors(e);
+        if (!Object.keys(errors.value).length)
+            formError.value = errorMessage(e);
+    }
+    finally {
+        submitting.value = false;
+    }
 }
-
-function useDemo(email: string, password: string) {
-  form.email = email
-  form.password = password
-  void submit()
+function useDemo(email, password) {
+    form.email = email;
+    form.password = password;
+    void submit();
 }
 </script>
 

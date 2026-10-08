@@ -1,0 +1,87 @@
+<script setup>
+import { ref, watch } from "vue";
+import { adminApi } from "@/services/admin";
+import { errorMessage } from "@/services/errors";
+import { useAsync } from "@/composables/useAsync";
+import { useDebouncedRef } from "@/composables/useDebounce";
+import { useToastStore } from "@/stores/toast";
+const status = ref("ALL");
+const search = ref("");
+const debounced = useDebouncedRef(search, 300);
+const page = ref(0);
+const toast = useToastStore();
+const busy = ref(null);
+const { data, loading, error, execute } = useAsync(
+  (s, q, p) => adminApi.products({ status: s, q, page: p, size: 20 })
+);
+watch([status, debounced, page], () => void execute(status.value, debounced.value, page.value), { immediate: true });
+watch([status, debounced], () => page.value = 0);
+const tabs = [
+  { value: "ALL", label: "All" },
+  { value: "ACTIVE", label: "Live" },
+  { value: "INACTIVE", label: "Unpublished" },
+  { value: "ARCHIVED", label: "Archived" }
+];
+const tones = { ACTIVE: "success", INACTIVE: "neutral", DRAFT: "warning", ARCHIVED: "neutral" };
+async function setStatus(id, next) {
+  busy.value = id;
+  try {
+    await adminApi.setProductStatus(id, next);
+    await execute(status.value, debounced.value, page.value);
+    toast.success(next === "ACTIVE" ? "Listing restored" : "Listing taken down");
+  } catch (e) {
+    toast.error("Couldn't update the listing", errorMessage(e));
+  } finally {
+    busy.value = null;
+  }
+}
+</script>
+
+<template>
+  <div>
+    <h1 class="text-xl font-semibold tracking-tight">Products</h1>
+    <p class="mt-1 text-sm text-ink-500">Every listing across all sellers.</p>
+
+    <div class="mt-5 flex flex-wrap items-center gap-3">
+      <ZTabs v-model="status" :tabs="tabs" label="Filter listings" class="flex-1" />
+      <div class="relative w-full sm:w-64">
+        <label for="admin-product-search" class="sr-only">Search products</label>
+        <Search class="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-ink-400" />
+        <input id="admin-product-search" v-model="search" type="search" placeholder="Search products" class="field-control h-9 pl-9 text-sm" />
+      </div>
+    </div>
+
+    <ZErrorState v-if="error" :error="error" @retry="execute(status, debounced, page)" />
+    <div v-else-if="loading && !data" class="mt-5 space-y-2"><div v-for="i in 6" :key="i" class="skeleton h-16 rounded-lg" /></div>
+    <div v-else-if="!data?.content.length" class="surface mt-5"><ZEmptyState :icon="Package" title="No listings found" description="Try a different filter." compact /></div>
+    <div v-else class="surface mt-5 overflow-x-auto">
+      <table class="w-full min-w-[820px] text-sm">
+        <thead class="border-b border-ink-150 text-left text-xs tracking-wide text-ink-500 uppercase">
+          <tr><th class="p-4 font-semibold">Product</th><th class="p-4 font-semibold">Status</th><th class="p-4 font-semibold">Price</th><th class="p-4 font-semibold">Stock</th><th class="p-4 font-semibold">Rating</th><th class="p-4" /></tr>
+        </thead>
+        <tbody class="divide-y divide-ink-100">
+          <tr v-for="p in data.content" :key="p.id" :class="busy === p.id && 'opacity-60'">
+            <td class="p-4">
+              <div class="flex items-center gap-3">
+                <img v-if="p.imageUrl" :src="p.imageUrl" alt="" class="size-12 shrink-0 rounded-lg bg-ink-50 object-contain p-1 mix-blend-multiply" />
+                <div class="min-w-0">
+                  <RouterLink :to="`/p/${p.slug}`" class="line-clamp-1 font-medium hover:text-brand-800">{{ p.title }}</RouterLink>
+                  <p class="text-[13px] text-ink-500">{{ p.categoryName }}<span v-if="p.brandName"> · {{ p.brandName }}</span></p>
+                </div>
+              </div>
+            </td>
+            <td class="p-4"><ZBadge :tone="tones[p.status]" size="sm">{{ p.status === 'INACTIVE' ? 'Unpublished' : p.status.charAt(0) + p.status.slice(1).toLowerCase() }}</ZBadge></td>
+            <td class="tabular p-4">{{ formatPrice(p.price) }}</td>
+            <td class="tabular p-4" :class="p.totalStock === 0 && 'text-danger'">{{ p.totalStock }}</td>
+            <td class="p-4"><ZRatingPill v-if="p.ratingCount" :value="p.ratingAverage" :count="p.ratingCount" /><span v-else class="text-ink-400">—</span></td>
+            <td class="p-4 text-right">
+              <ZButton v-if="p.status === 'ACTIVE'" variant="ghost" size="sm" @click="setStatus(p.id, 'INACTIVE')">Take down</ZButton>
+              <ZButton v-else-if="p.status !== 'ARCHIVED'" variant="ghost" size="sm" @click="setStatus(p.id, 'ACTIVE')">Restore</ZButton>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <ZPagination v-if="data" class="mt-8" :page="data.page" :total-pages="data.totalPages" @update:page="(p) => (page = p)" />
+  </div>
+</template>

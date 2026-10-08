@@ -1,24 +1,31 @@
-<script setup lang="ts">
-import { computed } from 'vue'
-import { AlertTriangle, Trash2 } from '@lucide/vue'
-import ZQuantityStepper from '@/components/ui/ZQuantityStepper.vue'
-import ZPrice from '@/components/ui/ZPrice.vue'
-import type { CartItem } from '@/types/cart'
-import { formatPrice } from '@/utils/format'
-
-const props = defineProps<{ item: CartItem; busy?: boolean; saved?: boolean; canSave?: boolean }>()
-const emit = defineEmits<{ quantity: [value: number]; remove: []; save: []; move: [] }>()
-
+<script setup>
+import { computed } from 'vue';
+import { AlertTriangle, Trash2 } from '@lucide/vue';
+import ZQuantityStepper from '@/components/ui/ZQuantityStepper.vue';
+import ZPrice from '@/components/ui/ZPrice.vue';
+import { formatPrice } from '@/utils/format';
+const props = defineProps({
+    item: null,
+    busy: { type: Boolean, default: false },
+    saved: { type: Boolean, default: false },
+    canSave: { type: Boolean, default: false }
+});
+const emit = defineEmits(["quantity", "remove", "save", "move"]);
 const notice = computed(() => {
-  const i = props.item
-  if (i.issues.includes('UNAVAILABLE')) return { tone: 'danger', text: 'This item is no longer available.' }
-  if (i.issues.includes('OUT_OF_STOCK')) return { tone: 'danger', text: 'Out of stock. Remove it or save it for later.' }
-  if (i.issues.includes('LIMITED_STOCK')) return { tone: 'warning', text: `Only ${i.maxQuantity} left. Reduce the quantity to continue.` }
-  if (i.issues.includes('PRICE_INCREASED') && i.priceAtAdd) return { tone: 'warning', text: `Price increased from ${formatPrice(i.priceAtAdd)}.` }
-  if (i.issues.includes('PRICE_DROPPED') && i.priceAtAdd) return { tone: 'success', text: `Price dropped from ${formatPrice(i.priceAtAdd)}.` }
-  return null
-})
-const options = computed(() => Object.entries(props.item.options).map(([k, v]) => `${k}: ${v}`).join(' · '))
+    const i = props.item;
+    if (i.issues.includes('UNAVAILABLE'))
+        return { tone: 'danger', text: 'This item is no longer available.' };
+    if (i.issues.includes('OUT_OF_STOCK'))
+        return { tone: 'danger', text: 'Out of stock. Remove it or save it for later.' };
+    if (i.issues.includes('LIMITED_STOCK'))
+        return { tone: 'warning', text: `Only ${i.maxQuantity} left. Reduce the quantity to continue.` };
+    if (i.issues.includes('PRICE_INCREASED') && i.priceAtAdd)
+        return { tone: 'warning', text: `Price increased from ${formatPrice(i.priceAtAdd)}.` };
+    if (i.issues.includes('PRICE_DROPPED') && i.priceAtAdd)
+        return { tone: 'success', text: `Price dropped from ${formatPrice(i.priceAtAdd)}.` };
+    return null;
+});
+const options = computed(() => Object.entries(props.item.options).map(([k, v]) => `${k}: ${v}`).join(' · '));
 </script>
 
 <template>

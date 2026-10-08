@@ -1,51 +1,48 @@
-<script setup lang="ts">
-import { ref, watch } from 'vue'
-import { PackagePlus, Search } from '@lucide/vue'
-import ZButton from '@/components/ui/ZButton.vue'
-import ZBadge from '@/components/ui/ZBadge.vue'
-import ZTabs from '@/components/ui/ZTabs.vue'
-import ZEmptyState from '@/components/ui/ZEmptyState.vue'
-import ZErrorState from '@/components/ui/ZErrorState.vue'
-import ZPagination from '@/components/ui/ZPagination.vue'
-import { sellerApi } from '@/services/seller'
-import { errorMessage } from '@/services/errors'
-import { useAsync } from '@/composables/useAsync'
-import { useDebouncedRef } from '@/composables/useDebounce'
-import { useToastStore } from '@/stores/toast'
-import { formatDate, formatPrice } from '@/utils/format'
-
-const status = ref('ALL')
-const search = ref('')
-const debounced = useDebouncedRef(search, 300)
-const page = ref(0)
-const toast = useToastStore()
-const busy = ref<number | null>(null)
-const { data, loading, error, execute } = useAsync((s: string, q: string, p: number) =>
-  sellerApi.products({ status: s, q, page: p, size: 20 }),
-)
-watch([status, debounced, page], () => void execute(status.value, debounced.value, page.value), { immediate: true })
-watch([status, debounced], () => (page.value = 0))
-
+<script setup>
+import { ref, watch } from 'vue';
+import { PackagePlus, Search } from '@lucide/vue';
+import ZButton from '@/components/ui/ZButton.vue';
+import ZBadge from '@/components/ui/ZBadge.vue';
+import ZTabs from '@/components/ui/ZTabs.vue';
+import ZEmptyState from '@/components/ui/ZEmptyState.vue';
+import ZErrorState from '@/components/ui/ZErrorState.vue';
+import ZPagination from '@/components/ui/ZPagination.vue';
+import { sellerApi } from '@/services/seller';
+import { errorMessage } from '@/services/errors';
+import { useAsync } from '@/composables/useAsync';
+import { useDebouncedRef } from '@/composables/useDebounce';
+import { useToastStore } from '@/stores/toast';
+import { formatDate, formatPrice } from '@/utils/format';
+const status = ref('ALL');
+const search = ref('');
+const debounced = useDebouncedRef(search, 300);
+const page = ref(0);
+const toast = useToastStore();
+const busy = ref(null);
+const { data, loading, error, execute } = useAsync((s, q, p) => sellerApi.products({ status: s, q, page: p, size: 20 }));
+watch([status, debounced, page], () => void execute(status.value, debounced.value, page.value), { immediate: true });
+watch([status, debounced], () => (page.value = 0));
 const tabs = [
-  { value: 'ALL', label: 'All' },
-  { value: 'ACTIVE', label: 'Live' },
-  { value: 'INACTIVE', label: 'Unpublished' },
-  { value: 'DRAFT', label: 'Drafts' },
-  { value: 'ARCHIVED', label: 'Archived' },
-]
-const tones = { ACTIVE: 'success', INACTIVE: 'neutral', DRAFT: 'warning', ARCHIVED: 'neutral' } as const
-
-async function setStatus(id: number, next: string) {
-  busy.value = id
-  try {
-    await sellerApi.setProductStatus(id, next)
-    await execute(status.value, debounced.value, page.value)
-    toast.success(next === 'ACTIVE' ? 'Listing published' : 'Listing updated')
-  } catch (e) {
-    toast.error("Couldn't update the listing", errorMessage(e))
-  } finally {
-    busy.value = null
-  }
+    { value: 'ALL', label: 'All' },
+    { value: 'ACTIVE', label: 'Live' },
+    { value: 'INACTIVE', label: 'Unpublished' },
+    { value: 'DRAFT', label: 'Drafts' },
+    { value: 'ARCHIVED', label: 'Archived' },
+];
+const tones = { ACTIVE: 'success', INACTIVE: 'neutral', DRAFT: 'warning', ARCHIVED: 'neutral' };
+async function setStatus(id, next) {
+    busy.value = id;
+    try {
+        await sellerApi.setProductStatus(id, next);
+        await execute(status.value, debounced.value, page.value);
+        toast.success(next === 'ACTIVE' ? 'Listing published' : 'Listing updated');
+    }
+    catch (e) {
+        toast.error("Couldn't update the listing", errorMessage(e));
+    }
+    finally {
+        busy.value = null;
+    }
 }
 </script>
 

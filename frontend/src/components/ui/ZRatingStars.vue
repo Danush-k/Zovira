@@ -1,13 +1,12 @@
-<script setup lang="ts">
-import { computed } from 'vue'
-import { Star } from '@lucide/vue'
-
-const props = withDefaults(defineProps<{ value: number; size?: 'sm' | 'md' | 'lg' }>(), { size: 'md' })
-
-const sizes = { sm: 'size-3.5', md: 'size-4', lg: 'size-5' }
-const fills = computed(() =>
-  Array.from({ length: 5 }, (_, i) => Math.max(0, Math.min(1, props.value - i)) * 100),
-)
+<script setup>
+import { computed } from 'vue';
+import { Star } from '@lucide/vue';
+const props = defineProps({
+    value: null,
+    size: { default: 'md' }
+});
+const sizes = { sm: 'size-3.5', md: 'size-4', lg: 'size-5' };
+const fills = computed(() => Array.from({ length: 5 }, (_, i) => Math.max(0, Math.min(1, props.value - i)) * 100));
 </script>
 
 <template>

@@ -1,65 +1,61 @@
-<script setup lang="ts">
-import { ref } from 'vue'
-import { MapPin, Plus } from '@lucide/vue'
-import ZButton from '@/components/ui/ZButton.vue'
-import ZDialog from '@/components/ui/ZDialog.vue'
-import ZEmptyState from '@/components/ui/ZEmptyState.vue'
-import ZErrorState from '@/components/ui/ZErrorState.vue'
-import AddressCard from '@/components/account/AddressCard.vue'
-import AddressFormDialog from '@/components/account/AddressFormDialog.vue'
-import { accountApi } from '@/services/account'
-import { errorMessage } from '@/services/errors'
-import { useAsync } from '@/composables/useAsync'
-import { useAuthStore } from '@/stores/auth'
-import { useToastStore } from '@/stores/toast'
-import type { Address } from '@/types/api'
-
-const auth = useAuthStore()
-const toast = useToastStore()
-const { data: addresses, loading, error, execute: load } = useAsync(accountApi.addresses, { immediate: true })
-
-const formOpen = ref(false)
-const editing = ref<Address | null>(null)
-const confirmDelete = ref<Address | null>(null)
-const deleting = ref(false)
-
+<script setup>
+import { ref } from 'vue';
+import { MapPin, Plus } from '@lucide/vue';
+import ZButton from '@/components/ui/ZButton.vue';
+import ZDialog from '@/components/ui/ZDialog.vue';
+import ZEmptyState from '@/components/ui/ZEmptyState.vue';
+import ZErrorState from '@/components/ui/ZErrorState.vue';
+import AddressCard from '@/components/account/AddressCard.vue';
+import AddressFormDialog from '@/components/account/AddressFormDialog.vue';
+import { accountApi } from '@/services/account';
+import { errorMessage } from '@/services/errors';
+import { useAsync } from '@/composables/useAsync';
+import { useAuthStore } from '@/stores/auth';
+import { useToastStore } from '@/stores/toast';
+const auth = useAuthStore();
+const toast = useToastStore();
+const { data: addresses, loading, error, execute: load } = useAsync(accountApi.addresses, { immediate: true });
+const formOpen = ref(false);
+const editing = ref(null);
+const confirmDelete = ref(null);
+const deleting = ref(false);
 function add() {
-  editing.value = null
-  formOpen.value = true
+    editing.value = null;
+    formOpen.value = true;
 }
-
-function edit(address: Address) {
-  editing.value = address
-  formOpen.value = true
+function edit(address) {
+    editing.value = address;
+    formOpen.value = true;
 }
-
 async function onSaved() {
-  toast.success(editing.value ? 'Address updated' : 'Address added')
-  await load()
+    toast.success(editing.value ? 'Address updated' : 'Address added');
+    await load();
 }
-
-async function makeDefault(address: Address) {
-  try {
-    await accountApi.makeDefaultAddress(address.id)
-    await load()
-  } catch (e) {
-    toast.error("Couldn't update default address", errorMessage(e))
-  }
+async function makeDefault(address) {
+    try {
+        await accountApi.makeDefaultAddress(address.id);
+        await load();
+    }
+    catch (e) {
+        toast.error("Couldn't update default address", errorMessage(e));
+    }
 }
-
 async function remove() {
-  if (!confirmDelete.value) return
-  deleting.value = true
-  try {
-    await accountApi.deleteAddress(confirmDelete.value.id)
-    confirmDelete.value = null
-    toast.success('Address removed')
-    await load()
-  } catch (e) {
-    toast.error("Couldn't remove address", errorMessage(e))
-  } finally {
-    deleting.value = false
-  }
+    if (!confirmDelete.value)
+        return;
+    deleting.value = true;
+    try {
+        await accountApi.deleteAddress(confirmDelete.value.id);
+        confirmDelete.value = null;
+        toast.success('Address removed');
+        await load();
+    }
+    catch (e) {
+        toast.error("Couldn't remove address", errorMessage(e));
+    }
+    finally {
+        deleting.value = false;
+    }
 }
 </script>
 

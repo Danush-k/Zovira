@@ -1,63 +1,56 @@
-<script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
-import { ShoppingBag, Tag, Zap } from '@lucide/vue'
-import ZButton from '@/components/ui/ZButton.vue'
-import ZQuantityStepper from '@/components/ui/ZQuantityStepper.vue'
-import WishlistButton from './WishlistButton.vue'
-import { useCartStore } from '@/stores/cart'
-import { useAuthStore } from '@/stores/auth'
-import { useToastStore } from '@/stores/toast'
-import { cartApi } from '@/services/cart'
-import { errorMessage } from '@/services/errors'
-import type { ProductDetail, ProductVariant } from '@/types/catalog'
-import type { CouponOffer } from '@/types/cart'
-import { formatPrice } from '@/utils/format'
-
-const props = defineProps<{ product: ProductDetail; variant: ProductVariant | null }>()
-
-const cart = useCartStore()
-const auth = useAuthStore()
-const toast = useToastStore()
-const router = useRouter()
-const quantity = ref(1)
-const adding = ref<'cart' | 'buy' | null>(null)
-const offers = ref<CouponOffer[]>([])
-
-watch(
-  () => props.variant?.id,
-  () => (quantity.value = 1),
-)
-
+<script setup>
+import { computed, onMounted, ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
+import { ShoppingBag, Tag, Zap } from '@lucide/vue';
+import ZButton from '@/components/ui/ZButton.vue';
+import ZQuantityStepper from '@/components/ui/ZQuantityStepper.vue';
+import WishlistButton from './WishlistButton.vue';
+import { useCartStore } from '@/stores/cart';
+import { useAuthStore } from '@/stores/auth';
+import { useToastStore } from '@/stores/toast';
+import { cartApi } from '@/services/cart';
+import { errorMessage } from '@/services/errors';
+import { formatPrice } from '@/utils/format';
+const props = defineProps({
+    product: null,
+    variant: null
+});
+const cart = useCartStore();
+const auth = useAuthStore();
+const toast = useToastStore();
+const router = useRouter();
+const quantity = ref(1);
+const adding = ref(null);
+const offers = ref([]);
+watch(() => props.variant?.id, () => (quantity.value = 1));
 onMounted(async () => {
-  offers.value = (await cartApi.offers().catch(() => [])).slice(0, 3)
-})
-
-const canBuy = computed(
-  () => props.product.status === 'ACTIVE' && !!props.variant && props.variant.stockStatus !== 'OUT_OF_STOCK',
-)
-const max = computed(() => Math.max(1, props.variant?.maxPurchasable ?? 1))
-
-async function add(mode: 'cart' | 'buy') {
-  if (!props.variant) return
-  adding.value = mode
-  try {
-    await cart.add(props.variant.id, quantity.value)
-    if (mode === 'buy') {
-      await router.push(auth.isAuthenticated ? '/checkout' : '/login?redirect=/checkout')
-    } else {
-      toast.success('Added to cart', `${props.product.title} (${props.variant.name})`, { label: 'View cart', to: '/cart' })
+    offers.value = (await cartApi.offers().catch(() => [])).slice(0, 3);
+});
+const canBuy = computed(() => props.product.status === 'ACTIVE' && !!props.variant && props.variant.stockStatus !== 'OUT_OF_STOCK');
+const max = computed(() => Math.max(1, props.variant?.maxPurchasable ?? 1));
+async function add(mode) {
+    if (!props.variant)
+        return;
+    adding.value = mode;
+    try {
+        await cart.add(props.variant.id, quantity.value);
+        if (mode === 'buy') {
+            await router.push(auth.isAuthenticated ? '/checkout' : '/login?redirect=/checkout');
+        }
+        else {
+            toast.success('Added to cart', `${props.product.title} (${props.variant.name})`, { label: 'View cart', to: '/cart' });
+        }
     }
-  } catch (e) {
-    toast.error("Couldn't add to cart", errorMessage(e))
-  } finally {
-    adding.value = null
-  }
+    catch (e) {
+        toast.error("Couldn't add to cart", errorMessage(e));
+    }
+    finally {
+        adding.value = null;
+    }
 }
-
-function offerText(o: CouponOffer) {
-  const value = o.discountType === 'PERCENTAGE' ? `${o.discountValue}% off` : `${formatPrice(o.discountValue)} off`
-  return `${value}${o.minOrderValue > 0 ? ` on orders above ${formatPrice(o.minOrderValue)}` : ''}`
+function offerText(o) {
+    const value = o.discountType === 'PERCENTAGE' ? `${o.discountValue}% off` : `${formatPrice(o.discountValue)} off`;
+    return `${value}${o.minOrderValue > 0 ? ` on orders above ${formatPrice(o.minOrderValue)}` : ''}`;
 }
 </script>
 

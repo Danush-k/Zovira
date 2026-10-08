@@ -1,41 +1,41 @@
-<script setup lang="ts">
-import { computed, reactive, ref } from 'vue'
-import { useRoute } from 'vue-router'
-import { CheckCircle2, Lock } from '@lucide/vue'
-import ZButton from '@/components/ui/ZButton.vue'
-import ZInput from '@/components/ui/ZInput.vue'
-import FormAlert from '@/components/auth/FormAlert.vue'
-import PasswordStrength from '@/components/auth/PasswordStrength.vue'
-import { authApi } from '@/services/auth'
-import { errorMessage } from '@/services/errors'
-
-const route = useRoute()
-const token = computed(() => (typeof route.query.token === 'string' ? route.query.token : ''))
-
-const form = reactive({ password: '', confirm: '' })
-const errors = ref<Record<string, string>>({})
-const formError = ref<string | null>(null)
-const submitting = ref(false)
-const done = ref(false)
-
+<script setup>
+import { computed, reactive, ref } from 'vue';
+import { useRoute } from 'vue-router';
+import { CheckCircle2, Lock } from '@lucide/vue';
+import ZButton from '@/components/ui/ZButton.vue';
+import ZInput from '@/components/ui/ZInput.vue';
+import FormAlert from '@/components/auth/FormAlert.vue';
+import PasswordStrength from '@/components/auth/PasswordStrength.vue';
+import { authApi } from '@/services/auth';
+import { errorMessage } from '@/services/errors';
+const route = useRoute();
+const token = computed(() => (typeof route.query.token === 'string' ? route.query.token : ''));
+const form = reactive({ password: '', confirm: '' });
+const errors = ref({});
+const formError = ref(null);
+const submitting = ref(false);
+const done = ref(false);
 async function submit() {
-  errors.value = {}
-  formError.value = null
-  if (form.password.length < 8 || !/[A-Za-z]/.test(form.password) || !/\d/.test(form.password)) {
-    errors.value.password = 'Use at least 8 characters with a letter and a number'
-  }
-  if (form.confirm !== form.password) errors.value.confirm = 'Passwords do not match'
-  if (Object.keys(errors.value).length) return
-
-  submitting.value = true
-  try {
-    await authApi.resetPassword(token.value, form.password)
-    done.value = true
-  } catch (e) {
-    formError.value = errorMessage(e)
-  } finally {
-    submitting.value = false
-  }
+    errors.value = {};
+    formError.value = null;
+    if (form.password.length < 8 || !/[A-Za-z]/.test(form.password) || !/\d/.test(form.password)) {
+        errors.value.password = 'Use at least 8 characters with a letter and a number';
+    }
+    if (form.confirm !== form.password)
+        errors.value.confirm = 'Passwords do not match';
+    if (Object.keys(errors.value).length)
+        return;
+    submitting.value = true;
+    try {
+        await authApi.resetPassword(token.value, form.password);
+        done.value = true;
+    }
+    catch (e) {
+        formError.value = errorMessage(e);
+    }
+    finally {
+        submitting.value = false;
+    }
 }
 </script>
 

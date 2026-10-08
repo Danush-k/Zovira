@@ -1,7 +1,9 @@
-<script setup lang="ts">
-import type { CategoryNode } from '@/types/catalog'
+<script setup>
+defineProps({
+    categories: null,
+    loading: { type: Boolean, default: false }
+});
 
-defineProps<{ categories: CategoryNode[]; loading?: boolean }>()
 </script>
 
 <template>

@@ -1,7 +1,8 @@
-<script setup lang="ts">
-import type { Brand } from '@/types/catalog'
+<script setup>
+defineProps({
+    brands: null
+});
 
-defineProps<{ brands: Brand[] }>()
 </script>
 
 <template>

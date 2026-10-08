@@ -1,28 +1,19 @@
-<script setup lang="ts">
-import { computed, useAttrs, useId } from 'vue'
-import { ChevronDown } from '@lucide/vue'
-
-defineOptions({ inheritAttrs: false })
-
-export interface SelectOption {
-  value: string | number
-  label: string
-  disabled?: boolean
-}
-
-defineProps<{
-  label?: string
-  options: SelectOption[]
-  placeholder?: string
-  error?: string | null
-  hint?: string
-  size?: 'sm' | 'md'
-}>()
-
-const model = defineModel<string | number | null>()
-const attrs = useAttrs()
-const autoId = useId()
-const id = computed(() => (attrs.id as string | undefined) ?? autoId)
+<script setup>
+import { computed, useAttrs, useId } from 'vue';
+import { ChevronDown } from '@lucide/vue';
+defineOptions({ inheritAttrs: false });
+defineProps({
+    label: null,
+    options: null,
+    placeholder: null,
+    error: null,
+    hint: null,
+    size: null
+});
+const model = defineModel();
+const attrs = useAttrs();
+const autoId = useId();
+const id = computed(() => attrs.id ?? autoId);
 </script>
 
 <template>

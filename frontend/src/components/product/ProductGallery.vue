@@ -1,48 +1,37 @@
-<script setup lang="ts">
-import { computed, ref, watch } from 'vue'
-import { ChevronLeft, ChevronRight, Expand } from '@lucide/vue'
-import ZDialog from '@/components/ui/ZDialog.vue'
-
-export interface GalleryImage {
-  id: number | string
-  url: string
-  altText?: string | null
+<script setup>
+import { computed, ref, watch } from 'vue';
+import { ChevronLeft, ChevronRight, Expand } from '@lucide/vue';
+import ZDialog from '@/components/ui/ZDialog.vue';
+const props = defineProps({
+    images: null,
+    title: null
+});
+const active = ref(0);
+const zoom = ref(false);
+const origin = ref('50% 50%');
+const lightbox = ref(false);
+const scroller = ref(null);
+watch(() => props.images.map((i) => i.url).join('|'), () => (active.value = 0));
+const current = computed(() => props.images[active.value]);
+function onMove(e) {
+    const rect = e.currentTarget.getBoundingClientRect();
+    origin.value = `${((e.clientX - rect.left) / rect.width) * 100}% ${((e.clientY - rect.top) / rect.height) * 100}%`;
 }
-
-const props = defineProps<{ images: GalleryImage[]; title: string }>()
-
-const active = ref(0)
-const zoom = ref(false)
-const origin = ref('50% 50%')
-const lightbox = ref(false)
-const scroller = ref<HTMLElement | null>(null)
-
-watch(
-  () => props.images.map((i) => i.url).join('|'),
-  () => (active.value = 0),
-)
-
-const current = computed(() => props.images[active.value])
-
-function onMove(e: MouseEvent) {
-  const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
-  origin.value = `${((e.clientX - rect.left) / rect.width) * 100}% ${((e.clientY - rect.top) / rect.height) * 100}%`
+function go(i) {
+    active.value = (i + props.images.length) % props.images.length;
 }
-
-function go(i: number) {
-  active.value = (i + props.images.length) % props.images.length
-}
-
 /** Mobile: swipeable, snap-scrolling strip keeps the active dot in sync. */
 function onMobileScroll() {
-  const el = scroller.value
-  if (!el) return
-  active.value = Math.round(el.scrollLeft / el.clientWidth)
+    const el = scroller.value;
+    if (!el)
+        return;
+    active.value = Math.round(el.scrollLeft / el.clientWidth);
 }
-
-function onLightboxKey(e: KeyboardEvent) {
-  if (e.key === 'ArrowRight') go(active.value + 1)
-  if (e.key === 'ArrowLeft') go(active.value - 1)
+function onLightboxKey(e) {
+    if (e.key === 'ArrowRight')
+        go(active.value + 1);
+    if (e.key === 'ArrowLeft')
+        go(active.value - 1);
 }
 </script>
 

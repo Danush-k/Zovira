@@ -1,25 +1,19 @@
-<script setup lang="ts">
-import { computed, useAttrs, useId } from 'vue'
-
-defineOptions({ inheritAttrs: false })
-
-const props = withDefaults(
-  defineProps<{
-    label?: string
-    hint?: string
-    error?: string | null
-    rows?: number
-    maxlength?: number
-    optional?: boolean
-  }>(),
-  { rows: 4 },
-)
-
-const model = defineModel<string | null>()
-const attrs = useAttrs()
-const autoId = useId()
-const id = computed(() => (attrs.id as string | undefined) ?? autoId)
-const count = computed(() => (model.value ?? '').length)
+<script setup>
+import { computed, useAttrs, useId } from 'vue';
+defineOptions({ inheritAttrs: false });
+const props = defineProps({
+    label: null,
+    hint: null,
+    error: null,
+    rows: { default: 4 },
+    maxlength: null,
+    optional: { type: Boolean, default: false }
+});
+const model = defineModel();
+const attrs = useAttrs();
+const autoId = useId();
+const id = computed(() => attrs.id ?? autoId);
+const count = computed(() => (model.value ?? '').length);
 </script>
 
 <template>
