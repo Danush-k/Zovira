@@ -1,14 +1,13 @@
-<script setup lang="ts">
-import { RotateCcw } from '@lucide/vue'
-import ZEmptyState from '@/components/ui/ZEmptyState.vue'
-import ZErrorState from '@/components/ui/ZErrorState.vue'
-import OrderStatusBadge from '@/components/order/OrderStatusBadge.vue'
-import { ordersApi, RETURN_REASONS } from '@/services/orders'
-import { useAsync } from '@/composables/useAsync'
-import { formatDate, formatPrice } from '@/utils/format'
-
-const { data, loading, error, execute } = useAsync(() => ordersApi.returns(), { immediate: true })
-const reasonLabel = (r: string) => RETURN_REASONS.find((x) => x.value === r)?.label ?? r
+<script setup>
+import { RotateCcw } from '@lucide/vue';
+import ZEmptyState from '@/components/ui/ZEmptyState.vue';
+import ZErrorState from '@/components/ui/ZErrorState.vue';
+import OrderStatusBadge from '@/components/order/OrderStatusBadge.vue';
+import { ordersApi, RETURN_REASONS } from '@/services/orders';
+import { useAsync } from '@/composables/useAsync';
+import { formatDate, formatPrice } from '@/utils/format';
+const { data, loading, error, execute } = useAsync(() => ordersApi.returns(), { immediate: true });
+const reasonLabel = (r) => RETURN_REASONS.find((x) => x.value === r)?.label ?? r;
 </script>
 
 <template>

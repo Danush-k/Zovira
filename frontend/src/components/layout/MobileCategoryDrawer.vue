@@ -1,13 +1,12 @@
-<script setup lang="ts">
-import { ref } from 'vue'
-import { ChevronRight } from '@lucide/vue'
-import ZDrawer from '@/components/ui/ZDrawer.vue'
-import CategoryIcon from '@/components/catalog/CategoryIcon.vue'
-import { useCatalogStore } from '@/stores/catalog'
-
-const open = defineModel<boolean>('open', { default: false })
-const catalog = useCatalogStore()
-const expanded = ref<number | null>(null)
+<script setup>
+import { ref } from 'vue';
+import { ChevronRight } from '@lucide/vue';
+import ZDrawer from '@/components/ui/ZDrawer.vue';
+import CategoryIcon from '@/components/catalog/CategoryIcon.vue';
+import { useCatalogStore } from '@/stores/catalog';
+const open = defineModel('open', { default: false });
+const catalog = useCatalogStore();
+const expanded = ref(null);
 </script>
 
 <template>

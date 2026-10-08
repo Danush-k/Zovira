@@ -1,35 +1,32 @@
-<script setup lang="ts">
-import { onMounted, ref } from 'vue'
-import AppHeader from '@/components/layout/AppHeader.vue'
-import AppFooter from '@/components/layout/AppFooter.vue'
-import MobileBottomNav from '@/components/layout/MobileBottomNav.vue'
-import MobileCategoryDrawer from '@/components/layout/MobileCategoryDrawer.vue'
-import CompareTray from '@/components/layout/CompareTray.vue'
-import { useCatalogStore } from '@/stores/catalog'
-import { useCartStore } from '@/stores/cart'
-import { useWishlistStore } from '@/stores/wishlist'
-import { useAuthStore } from '@/stores/auth'
-
-const catalog = useCatalogStore()
-const cart = useCartStore()
-const wishlist = useWishlistStore()
-const auth = useAuthStore()
-const header = ref<InstanceType<typeof AppHeader> | null>(null)
-const drawerOpen = ref(false)
-
+<script setup>
+import { onMounted, ref } from 'vue';
+import AppHeader from '@/components/layout/AppHeader.vue';
+import AppFooter from '@/components/layout/AppFooter.vue';
+import MobileBottomNav from '@/components/layout/MobileBottomNav.vue';
+import MobileCategoryDrawer from '@/components/layout/MobileCategoryDrawer.vue';
+import CompareTray from '@/components/layout/CompareTray.vue';
+import { useCatalogStore } from '@/stores/catalog';
+import { useCartStore } from '@/stores/cart';
+import { useWishlistStore } from '@/stores/wishlist';
+import { useAuthStore } from '@/stores/auth';
+const catalog = useCatalogStore();
+const cart = useCartStore();
+const wishlist = useWishlistStore();
+const auth = useAuthStore();
+const header = ref(null);
+const drawerOpen = ref(false);
 onMounted(() => {
-  catalog.loadCategories().catch(() => undefined)
-  void catalog.loadSettings()
-  void auth.init().then(() => {
-    cart.load().catch(() => undefined)
-    wishlist.load().catch(() => undefined)
-  })
-})
-
+    catalog.loadCategories().catch(() => undefined);
+    void catalog.loadSettings();
+    void auth.init().then(() => {
+        cart.load().catch(() => undefined);
+        wishlist.load().catch(() => undefined);
+    });
+});
 auth.onChange((user) => {
-  void cart.onAuthChange(!!user)
-  wishlist.load().catch(() => undefined)
-})
+    void cart.onAuthChange(!!user);
+    wishlist.load().catch(() => undefined);
+});
 </script>
 
 <template>

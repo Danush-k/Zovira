@@ -60,7 +60,16 @@ services:
       - "1025:1025"
       - "8025:8025"
 
+  mongodb:
+    image: mongo:7.0
+    restart: unless-stopped
+    ports:
+      - "${MONGODB_PORT:-27017}:27017"
+    volumes:
+      - mongo-data:/data/db
+
 volumes:
   postgres-data:
   redis-data:
   object-data:
+  mongo-data:

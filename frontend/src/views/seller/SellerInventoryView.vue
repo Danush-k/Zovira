@@ -1,48 +1,49 @@
-<script setup lang="ts">
-import { computed, ref, watch } from 'vue'
-import { useRoute } from 'vue-router'
-import { Boxes, Save } from '@lucide/vue'
-import ZButton from '@/components/ui/ZButton.vue'
-import ZSwitch from '@/components/ui/ZSwitch.vue'
-import ZEmptyState from '@/components/ui/ZEmptyState.vue'
-import ZErrorState from '@/components/ui/ZErrorState.vue'
-import { sellerApi } from '@/services/seller'
-import { errorMessage } from '@/services/errors'
-import { useAsync } from '@/composables/useAsync'
-import { useToastStore } from '@/stores/toast'
-import { formatPrice } from '@/utils/format'
-
-const route = useRoute()
-const toast = useToastStore()
-const lowOnly = ref(route.query.low === 'true')
-const { data: rows, loading, error, execute } = useAsync((low: boolean) => sellerApi.inventory(low))
-watch(lowOnly, (v) => void execute(v), { immediate: true })
-
+<script setup>
+import { computed, ref, watch } from 'vue';
+import { useRoute } from 'vue-router';
+import { Boxes, Save } from '@lucide/vue';
+import ZButton from '@/components/ui/ZButton.vue';
+import ZSwitch from '@/components/ui/ZSwitch.vue';
+import ZEmptyState from '@/components/ui/ZEmptyState.vue';
+import ZErrorState from '@/components/ui/ZErrorState.vue';
+import { sellerApi } from '@/services/seller';
+import { errorMessage } from '@/services/errors';
+import { useAsync } from '@/composables/useAsync';
+import { useToastStore } from '@/stores/toast';
+import { formatPrice } from '@/utils/format';
+const route = useRoute();
+const toast = useToastStore();
+const lowOnly = ref(route.query.low === 'true');
+const { data: rows, loading, error, execute } = useAsync((low) => sellerApi.inventory(low));
+watch(lowOnly, (v) => void execute(v), { immediate: true });
 /** Only edited rows are sent, so a slow save never overwrites someone else's untouched stock. */
-const edits = ref<Record<number, number>>({})
-const saving = ref(false)
-const dirty = computed(() => Object.keys(edits.value).length)
-
-function onInput(variantId: number, value: string, original: number) {
-  const parsed = Number(value)
-  if (!Number.isFinite(parsed) || parsed < 0) return
-  if (parsed === original) delete edits.value[variantId]
-  else edits.value[variantId] = parsed
-  edits.value = { ...edits.value }
+const edits = ref({});
+const saving = ref(false);
+const dirty = computed(() => Object.keys(edits.value).length);
+function onInput(variantId, value, original) {
+    const parsed = Number(value);
+    if (!Number.isFinite(parsed) || parsed < 0)
+        return;
+    if (parsed === original)
+        delete edits.value[variantId];
+    else
+        edits.value[variantId] = parsed;
+    edits.value = { ...edits.value };
 }
-
 async function save() {
-  saving.value = true
-  try {
-    await sellerApi.updateStock(Object.entries(edits.value).map(([variantId, available]) => ({ variantId: Number(variantId), available })))
-    edits.value = {}
-    await execute(lowOnly.value)
-    toast.success('Stock updated')
-  } catch (e) {
-    toast.error("Couldn't update stock", errorMessage(e))
-  } finally {
-    saving.value = false
-  }
+    saving.value = true;
+    try {
+        await sellerApi.updateStock(Object.entries(edits.value).map(([variantId, available]) => ({ variantId: Number(variantId), available })));
+        edits.value = {};
+        await execute(lowOnly.value);
+        toast.success('Stock updated');
+    }
+    catch (e) {
+        toast.error("Couldn't update stock", errorMessage(e));
+    }
+    finally {
+        saving.value = false;
+    }
 }
 </script>
 
@@ -90,7 +91,7 @@ async function save() {
                 :value="edits[row.variantId] ?? row.available"
                 :aria-label="`Available stock for ${row.productTitle} ${row.variantName}`"
                 :class="['field-control tabular h-9 w-24', edits[row.variantId] !== undefined && 'border-brand-500 ring-3 ring-brand-500/15', row.available === 0 && edits[row.variantId] === undefined && 'text-danger']"
-                @input="onInput(row.variantId, ($event.target as HTMLInputElement).value, row.available)"
+                @input="onInput(row.variantId, $event.target.value, row.available)"
               />
             </td>
           </tr>

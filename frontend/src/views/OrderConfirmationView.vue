@@ -1,43 +1,42 @@
-<script setup lang="ts">
-import { computed, ref, watch } from 'vue'
-import { useRoute } from 'vue-router'
-import { AlertCircle, CheckCircle2, Clock } from '@lucide/vue'
-import ZButton from '@/components/ui/ZButton.vue'
-import ZErrorState from '@/components/ui/ZErrorState.vue'
-import SandboxPaymentDialog from '@/components/checkout/SandboxPaymentDialog.vue'
-import { checkoutApi } from '@/services/checkout'
-import { errorMessage } from '@/services/errors'
-import { useAsync } from '@/composables/useAsync'
-import { PaymentDismissedError, usePaymentFlow } from '@/composables/usePaymentFlow'
-import { useToastStore } from '@/stores/toast'
-import { formatDate, formatPrice } from '@/utils/format'
-import type { PaymentMethod } from '@/types/order'
-
-const route = useRoute()
-const toast = useToastStore()
-const payment = usePaymentFlow()
-const number = computed(() => String(route.params.number))
-const { data: order, loading, error, execute } = useAsync((n: string) => checkoutApi.order(n))
-const retrying = ref(false)
-
-watch(number, (n) => void execute(n), { immediate: true })
-
-const paid = computed(() => order.value && !order.value.paymentPending && order.value.status !== 'PAYMENT_FAILED')
-
+<script setup>
+import { computed, ref, watch } from 'vue';
+import { useRoute } from 'vue-router';
+import { AlertCircle, CheckCircle2, Clock } from '@lucide/vue';
+import ZButton from '@/components/ui/ZButton.vue';
+import ZErrorState from '@/components/ui/ZErrorState.vue';
+import SandboxPaymentDialog from '@/components/checkout/SandboxPaymentDialog.vue';
+import { checkoutApi } from '@/services/checkout';
+import { errorMessage } from '@/services/errors';
+import { useAsync } from '@/composables/useAsync';
+import { PaymentDismissedError, usePaymentFlow } from '@/composables/usePaymentFlow';
+import { useToastStore } from '@/stores/toast';
+import { formatDate, formatPrice } from '@/utils/format';
+const route = useRoute();
+const toast = useToastStore();
+const payment = usePaymentFlow();
+const number = computed(() => String(route.params.number));
+const { data: order, loading, error, execute } = useAsync((n) => checkoutApi.order(n));
+const retrying = ref(false);
+watch(number, (n) => void execute(n), { immediate: true });
+const paid = computed(() => order.value && !order.value.paymentPending && order.value.status !== 'PAYMENT_FAILED');
 async function retry() {
-  if (!order.value) return
-  retrying.value = true
-  const method: PaymentMethod = order.value.paymentMethod === 'COD' ? 'UPI' : order.value.paymentMethod
-  try {
-    const intent = await checkoutApi.retry(order.value.orderNumber, method)
-    await payment.pay(intent, method)
-    toast.success('Payment received')
-  } catch (e) {
-    if (!(e instanceof PaymentDismissedError)) toast.error('Payment failed', errorMessage(e))
-  } finally {
-    retrying.value = false
-    await execute(number.value)
-  }
+    if (!order.value)
+        return;
+    retrying.value = true;
+    const method = order.value.paymentMethod === 'COD' ? 'UPI' : order.value.paymentMethod;
+    try {
+        const intent = await checkoutApi.retry(order.value.orderNumber, method);
+        await payment.pay(intent, method);
+        toast.success('Payment received');
+    }
+    catch (e) {
+        if (!(e instanceof PaymentDismissedError))
+            toast.error('Payment failed', errorMessage(e));
+    }
+    finally {
+        retrying.value = false;
+        await execute(number.value);
+    }
 }
 </script>
 

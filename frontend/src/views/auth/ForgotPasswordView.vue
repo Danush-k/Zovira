@@ -1,34 +1,34 @@
-<script setup lang="ts">
-import { ref } from 'vue'
-import { ArrowLeft, Mail, MailCheck } from '@lucide/vue'
-import ZButton from '@/components/ui/ZButton.vue'
-import ZInput from '@/components/ui/ZInput.vue'
-import FormAlert from '@/components/auth/FormAlert.vue'
-import { authApi } from '@/services/auth'
-import { errorMessage } from '@/services/errors'
-
-const email = ref('')
-const error = ref<string | null>(null)
-const formError = ref<string | null>(null)
-const submitting = ref(false)
-const sent = ref(false)
-
+<script setup>
+import { ref } from 'vue';
+import { ArrowLeft, Mail, MailCheck } from '@lucide/vue';
+import ZButton from '@/components/ui/ZButton.vue';
+import ZInput from '@/components/ui/ZInput.vue';
+import FormAlert from '@/components/auth/FormAlert.vue';
+import { authApi } from '@/services/auth';
+import { errorMessage } from '@/services/errors';
+const email = ref('');
+const error = ref(null);
+const formError = ref(null);
+const submitting = ref(false);
+const sent = ref(false);
 async function submit() {
-  error.value = null
-  formError.value = null
-  if (!/^\S+@\S+\.\S+$/.test(email.value.trim())) {
-    error.value = 'Enter a valid email address'
-    return
-  }
-  submitting.value = true
-  try {
-    await authApi.forgotPassword(email.value.trim())
-    sent.value = true
-  } catch (e) {
-    formError.value = errorMessage(e)
-  } finally {
-    submitting.value = false
-  }
+    error.value = null;
+    formError.value = null;
+    if (!/^\S+@\S+\.\S+$/.test(email.value.trim())) {
+        error.value = 'Enter a valid email address';
+        return;
+    }
+    submitting.value = true;
+    try {
+        await authApi.forgotPassword(email.value.trim());
+        sent.value = true;
+    }
+    catch (e) {
+        formError.value = errorMessage(e);
+    }
+    finally {
+        submitting.value = false;
+    }
 }
 </script>
 

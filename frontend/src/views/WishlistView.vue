@@ -1,48 +1,49 @@
-<script setup lang="ts">
-import { ref } from 'vue'
-import { Heart, TrendingDown } from '@lucide/vue'
-import ZButton from '@/components/ui/ZButton.vue'
-import ZEmptyState from '@/components/ui/ZEmptyState.vue'
-import ZErrorState from '@/components/ui/ZErrorState.vue'
-import ZPrice from '@/components/ui/ZPrice.vue'
-import { wishlistApi } from '@/services/cart'
-import { errorMessage } from '@/services/errors'
-import { useAsync } from '@/composables/useAsync'
-import { useCartStore } from '@/stores/cart'
-import { useWishlistStore } from '@/stores/wishlist'
-import { useToastStore } from '@/stores/toast'
-import { formatPrice } from '@/utils/format'
-
-const { data: items, loading, error, execute } = useAsync(wishlistApi.list, { immediate: true })
-const cart = useCartStore()
-const wishlist = useWishlistStore()
-const toast = useToastStore()
-const busy = ref<number | null>(null)
-
-async function moveToCart(productId: number) {
-  busy.value = productId
-  try {
-    items.value = await wishlistApi.moveToCart(productId)
-    wishlist.forget(productId)
-    await cart.load()
-    toast.success('Moved to cart', undefined, { label: 'View cart', to: '/cart' })
-  } catch (e) {
-    toast.error("Couldn't move to cart", errorMessage(e))
-  } finally {
-    busy.value = null
-  }
+<script setup>
+import { ref } from 'vue';
+import { Heart, TrendingDown } from '@lucide/vue';
+import ZButton from '@/components/ui/ZButton.vue';
+import ZEmptyState from '@/components/ui/ZEmptyState.vue';
+import ZErrorState from '@/components/ui/ZErrorState.vue';
+import ZPrice from '@/components/ui/ZPrice.vue';
+import { wishlistApi } from '@/services/cart';
+import { errorMessage } from '@/services/errors';
+import { useAsync } from '@/composables/useAsync';
+import { useCartStore } from '@/stores/cart';
+import { useWishlistStore } from '@/stores/wishlist';
+import { useToastStore } from '@/stores/toast';
+import { formatPrice } from '@/utils/format';
+const { data: items, loading, error, execute } = useAsync(wishlistApi.list, { immediate: true });
+const cart = useCartStore();
+const wishlist = useWishlistStore();
+const toast = useToastStore();
+const busy = ref(null);
+async function moveToCart(productId) {
+    busy.value = productId;
+    try {
+        items.value = await wishlistApi.moveToCart(productId);
+        wishlist.forget(productId);
+        await cart.load();
+        toast.success('Moved to cart', undefined, { label: 'View cart', to: '/cart' });
+    }
+    catch (e) {
+        toast.error("Couldn't move to cart", errorMessage(e));
+    }
+    finally {
+        busy.value = null;
+    }
 }
-
-async function remove(productId: number) {
-  busy.value = productId
-  try {
-    items.value = await wishlistApi.remove(productId)
-    wishlist.forget(productId)
-  } catch (e) {
-    toast.error("Couldn't remove item", errorMessage(e))
-  } finally {
-    busy.value = null
-  }
+async function remove(productId) {
+    busy.value = productId;
+    try {
+        items.value = await wishlistApi.remove(productId);
+        wishlist.forget(productId);
+    }
+    catch (e) {
+        toast.error("Couldn't remove item", errorMessage(e));
+    }
+    finally {
+        busy.value = null;
+    }
 }
 </script>
 

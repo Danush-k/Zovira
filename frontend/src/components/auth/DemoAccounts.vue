@@ -1,17 +1,15 @@
-<script setup lang="ts">
-import { KeyRound } from '@lucide/vue'
-
+<script setup>
+import { KeyRound } from '@lucide/vue';
 /**
  * Shortcut for evaluating a seeded development environment. Rendered only when
  * VITE_DEMO_MODE=true, which must never be set for a production build.
  */
-const emit = defineEmits<{ pick: [email: string, password: string] }>()
-
+const emit = defineEmits(["pick"]);
 const accounts = [
-  { role: 'Customer', email: 'aarav@zovira.test', password: 'Customer@123' },
-  { role: 'Seller', email: 'seller.northwind@zovira.test', password: 'Seller@123' },
-  { role: 'Admin', email: 'admin@zovira.test', password: 'Admin@12345' },
-]
+    { role: 'Customer', email: 'aarav@zovira.test', password: 'Customer@123' },
+    { role: 'Seller', email: 'seller.northwind@zovira.test', password: 'Seller@123' },
+    { role: 'Admin', email: 'admin@zovira.test', password: 'Admin@12345' },
+];
 </script>
 
 <template>

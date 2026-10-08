@@ -1,33 +1,32 @@
-<script setup lang="ts">
-import { computed, ref } from 'vue'
-import { FlaskConical, Lock } from '@lucide/vue'
-import ZDialog from '@/components/ui/ZDialog.vue'
-import ZButton from '@/components/ui/ZButton.vue'
-import type { PaymentIntent, PaymentMethod } from '@/types/order'
-import { formatPrice } from '@/utils/format'
-
-const props = defineProps<{ intent: PaymentIntent | null; method: PaymentMethod }>()
-const emit = defineEmits<{ complete: [success: boolean]; dismiss: [] }>()
-const busy = ref<'pay' | 'fail' | null>(null)
-
+<script setup>
+import { computed, ref } from 'vue';
+import { FlaskConical, Lock } from '@lucide/vue';
+import ZDialog from '@/components/ui/ZDialog.vue';
+import ZButton from '@/components/ui/ZButton.vue';
+import { formatPrice } from '@/utils/format';
+const props = defineProps({
+    intent: null,
+    method: null
+});
+const emit = defineEmits(["complete", "dismiss"]);
+const busy = ref(null);
 const open = computed({
-  get: () => !!props.intent,
-  set: (v) => {
-    if (!v && !busy.value) emit('dismiss')
-  },
-})
-
-const methodLabel: Record<PaymentMethod, string> = {
-  UPI: 'UPI',
-  CARD: 'Credit / debit card',
-  NETBANKING: 'Net banking',
-  WALLET: 'Wallet',
-  COD: 'Cash on delivery',
-}
-
-function finish(success: boolean) {
-  busy.value = success ? 'pay' : 'fail'
-  emit('complete', success)
+    get: () => !!props.intent,
+    set: (v) => {
+        if (!v && !busy.value)
+            emit('dismiss');
+    },
+});
+const methodLabel = {
+    UPI: 'UPI',
+    CARD: 'Credit / debit card',
+    NETBANKING: 'Net banking',
+    WALLET: 'Wallet',
+    COD: 'Cash on delivery',
+};
+function finish(success) {
+    busy.value = success ? 'pay' : 'fail';
+    emit('complete', success);
 }
 </script>
 

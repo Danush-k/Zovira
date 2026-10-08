@@ -1,0 +1,36 @@
+{
+  "admin": { "fullName": "Zovira Operations", "email": "admin@zovira.test", "password": "Admin@12345" },
+  "sellerPassword": "Seller@123",
+  "customerPassword": "Customer@123",
+  "pendingSeller": {
+    "fullName": "Farah Siddiqui", "email": "seller.artisanloom@zovira.test", "storeName": "Artisan Loom",
+    "description": "Handwoven textiles and home linen from weaving clusters across Kerala.",
+    "city": "Kochi", "state": "Kerala", "pincode": "682011", "line1": "14 Jew Town Road", "gstin": "32AAKFA2214N1Z8", "phone": "9847011223"
+  },
+  "customers": [
+    { "fullName": "Aarav Sharma", "email": "aarav@zovira.test", "phone": "9876501234", "line1": "Flat 402, Lakeview Residency", "line2": "Indiranagar 2nd Stage", "city": "Bengaluru", "state": "Karnataka", "pincode": "560038" },
+    { "fullName": "Diya Patel", "email": "diya@zovira.test", "phone": "9825012345", "line1": "12 Sarkhej Road", "line2": "Prahlad Nagar", "city": "Ahmedabad", "state": "Gujarat", "pincode": "380015" },
+    { "fullName": "Vihaan Reddy", "email": "vihaan@zovira.test", "phone": "9848023456", "line1": "Plot 55, Road No. 10", "line2": "Banjara Hills", "city": "Hyderabad", "state": "Telangana", "pincode": "500034" },
+    { "fullName": "Ananya Iyer", "email": "ananya@zovira.test", "phone": "9840034567", "line1": "8 Kasturi Ranga Road", "line2": "Alwarpet", "city": "Chennai", "state": "Tamil Nadu", "pincode": "600018" },
+    { "fullName": "Arjun Mehta", "email": "arjun@zovira.test", "phone": "9820045678", "line1": "B-1203, Oberoi Splendor", "line2": "JVLR, Andheri East", "city": "Mumbai", "state": "Maharashtra", "pincode": "400060" },
+    { "fullName": "Ishita Gupta", "email": "ishita@zovira.test", "phone": "9811056789", "line1": "C-47 Greater Kailash I", "line2": null, "city": "New Delhi", "state": "Delhi", "pincode": "110048" },
+    { "fullName": "Kabir Singh", "email": "kabir@zovira.test", "phone": "9815067890", "line1": "House 221, Sector 35-B", "line2": null, "city": "Chandigarh", "state": "Chandigarh", "pincode": "160022" },
+    { "fullName": "Meera Nair", "email": "meera@zovira.test", "phone": "9847078901", "line1": "TC 9/1344, Sasthamangalam", "line2": null, "city": "Thiruvananthapuram", "state": "Kerala", "pincode": "695010" },
+    { "fullName": "Rohan Das", "email": "rohan@zovira.test", "phone": "9830089012", "line1": "23 Southern Avenue", "line2": "Lake Market", "city": "Kolkata", "state": "West Bengal", "pincode": "700029" },
+    { "fullName": "Saanvi Joshi", "email": "saanvi@zovira.test", "phone": "9822090123", "line1": "17 Prabhat Road", "line2": "Deccan Gymkhana", "city": "Pune", "state": "Maharashtra", "pincode": "411004" },
+    { "fullName": "Aditya Kulkarni", "email": "aditya@zovira.test", "phone": "9845101234", "line1": "45 8th Cross, Malleshwaram", "line2": null, "city": "Bengaluru", "state": "Karnataka", "pincode": "560003" },
+    { "fullName": "Priya Menon", "email": "priya@zovira.test", "phone": "9895112345", "line1": "Skyline Ivy League, Flat 6C", "line2": "Kakkanad", "city": "Kochi", "state": "Kerala", "pincode": "682030" },
+    { "fullName": "Reyansh Bose", "email": "reyansh@zovira.test" },
+    { "fullName": "Anika Chawla", "email": "anika@zovira.test" },
+    { "fullName": "Dhruv Agarwal", "email": "dhruv@zovira.test" },
+    { "fullName": "Kiara Fernandes", "email": "kiara@zovira.test" },
+    { "fullName": "Ayaan Qureshi", "email": "ayaan@zovira.test" },
+    { "fullName": "Myra Pillai", "email": "myra@zovira.test" },
+    { "fullName": "Vivaan Saxena", "email": "vivaan@zovira.test" },
+    { "fullName": "Tara Bhatt", "email": "tara@zovira.test" },
+    { "fullName": "Nikhil Rao", "email": "nikhil@zovira.test" },
+    { "fullName": "Zara Sheikh", "email": "zara@zovira.test" },
+    { "fullName": "Om Prakash Yadav", "email": "om@zovira.test" },
+    { "fullName": "Isha Banerjee", "email": "isha@zovira.test" }
+  ]
+}

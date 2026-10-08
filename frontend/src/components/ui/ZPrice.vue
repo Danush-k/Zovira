@@ -1,27 +1,21 @@
-<script setup lang="ts">
-import { computed } from 'vue'
-import { discountPercent, formatPrice } from '@/utils/format'
-
-const props = withDefaults(
-  defineProps<{
-    price: number | string
-    mrp?: number | string | null
-    size?: 'sm' | 'md' | 'lg' | 'xl'
-    showDiscount?: boolean
-  }>(),
-  { size: 'md', showDiscount: true },
-)
-
-const priceNum = computed(() => Number(props.price))
-const mrpNum = computed(() => (props.mrp == null ? 0 : Number(props.mrp)))
-const off = computed(() => discountPercent(priceNum.value, mrpNum.value))
-
+<script setup>
+import { computed } from 'vue';
+import { discountPercent, formatPrice } from '@/utils/format';
+const props = defineProps({
+    price: null,
+    mrp: null,
+    size: { default: 'md' },
+    showDiscount: { type: Boolean, default: true }
+});
+const priceNum = computed(() => Number(props.price));
+const mrpNum = computed(() => (props.mrp == null ? 0 : Number(props.mrp)));
+const off = computed(() => discountPercent(priceNum.value, mrpNum.value));
 const sizes = {
-  sm: { price: 'text-[15px]', mrp: 'text-xs', off: 'text-xs' },
-  md: { price: 'text-lg', mrp: 'text-[13px]', off: 'text-[13px]' },
-  lg: { price: 'text-2xl', mrp: 'text-sm', off: 'text-sm' },
-  xl: { price: 'text-[2rem] leading-none', mrp: 'text-[15px]', off: 'text-[15px]' },
-}
+    sm: { price: 'text-[15px]', mrp: 'text-xs', off: 'text-xs' },
+    md: { price: 'text-lg', mrp: 'text-[13px]', off: 'text-[13px]' },
+    lg: { price: 'text-2xl', mrp: 'text-sm', off: 'text-sm' },
+    xl: { price: 'text-[2rem] leading-none', mrp: 'text-[15px]', off: 'text-[15px]' },
+};
 </script>
 
 <template>

@@ -1,37 +1,36 @@
-<script setup lang="ts">
-import { ref, watch } from 'vue'
-import { RotateCcw } from '@lucide/vue'
-import ZButton from '@/components/ui/ZButton.vue'
-import ZSwitch from '@/components/ui/ZSwitch.vue'
-import ZEmptyState from '@/components/ui/ZEmptyState.vue'
-import ZErrorState from '@/components/ui/ZErrorState.vue'
-import OrderStatusBadge from '@/components/order/OrderStatusBadge.vue'
-import { sellerApi } from '@/services/seller'
-import { RETURN_REASONS } from '@/services/orders'
-import { errorMessage } from '@/services/errors'
-import { useAsync } from '@/composables/useAsync'
-import { useToastStore } from '@/stores/toast'
-import { formatDate, formatPrice } from '@/utils/format'
-
-const openOnly = ref(true)
-const toast = useToastStore()
-const busy = ref<number | null>(null)
-const { data, loading, error, execute } = useAsync((open: boolean) => sellerApi.returns(open))
-watch(openOnly, (v) => void execute(v), { immediate: true })
-
-const reasonLabel = (r: string) => RETURN_REASONS.find((x) => x.value === r)?.label ?? r
-
-async function decide(id: number, decision: 'APPROVE' | 'REJECT' | 'RECEIVE') {
-  busy.value = id
-  try {
-    await sellerApi.decideReturn(id, decision)
-    await execute(openOnly.value)
-    toast.success(decision === 'RECEIVE' ? 'Return received and refunded' : decision === 'APPROVE' ? 'Return approved' : 'Return rejected')
-  } catch (e) {
-    toast.error("Couldn't update the return", errorMessage(e))
-  } finally {
-    busy.value = null
-  }
+<script setup>
+import { ref, watch } from 'vue';
+import { RotateCcw } from '@lucide/vue';
+import ZButton from '@/components/ui/ZButton.vue';
+import ZSwitch from '@/components/ui/ZSwitch.vue';
+import ZEmptyState from '@/components/ui/ZEmptyState.vue';
+import ZErrorState from '@/components/ui/ZErrorState.vue';
+import OrderStatusBadge from '@/components/order/OrderStatusBadge.vue';
+import { sellerApi } from '@/services/seller';
+import { RETURN_REASONS } from '@/services/orders';
+import { errorMessage } from '@/services/errors';
+import { useAsync } from '@/composables/useAsync';
+import { useToastStore } from '@/stores/toast';
+import { formatDate, formatPrice } from '@/utils/format';
+const openOnly = ref(true);
+const toast = useToastStore();
+const busy = ref(null);
+const { data, loading, error, execute } = useAsync((open) => sellerApi.returns(open));
+watch(openOnly, (v) => void execute(v), { immediate: true });
+const reasonLabel = (r) => RETURN_REASONS.find((x) => x.value === r)?.label ?? r;
+async function decide(id, decision) {
+    busy.value = id;
+    try {
+        await sellerApi.decideReturn(id, decision);
+        await execute(openOnly.value);
+        toast.success(decision === 'RECEIVE' ? 'Return received and refunded' : decision === 'APPROVE' ? 'Return approved' : 'Return rejected');
+    }
+    catch (e) {
+        toast.error("Couldn't update the return", errorMessage(e));
+    }
+    finally {
+        busy.value = null;
+    }
 }
 </script>
 

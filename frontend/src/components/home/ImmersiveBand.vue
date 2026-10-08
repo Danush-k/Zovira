@@ -1,9 +1,9 @@
-<script setup lang="ts">
-import { ArrowRight, Box, Move3d, ScanLine } from '@lucide/vue'
-import ZPrice from '@/components/ui/ZPrice.vue'
-import type { ProductSummary } from '@/types/catalog'
-
-defineProps<{ products: ProductSummary[] }>()
+<script setup>
+import { ArrowRight, Box, Move3d, ScanLine } from '@lucide/vue';
+import ZPrice from '@/components/ui/ZPrice.vue';
+defineProps({
+    products: null
+});
 </script>
 
 <template>

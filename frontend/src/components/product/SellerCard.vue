@@ -1,9 +1,9 @@
-<script setup lang="ts">
-import { ChevronRight, Store } from '@lucide/vue'
-import ZRatingPill from '@/components/ui/ZRatingPill.vue'
-import type { SellerSummary } from '@/types/catalog'
-
-defineProps<{ seller: SellerSummary }>()
+<script setup>
+import { ChevronRight, Store } from '@lucide/vue';
+import ZRatingPill from '@/components/ui/ZRatingPill.vue';
+defineProps({
+    seller: null
+});
 </script>
 
 <template>

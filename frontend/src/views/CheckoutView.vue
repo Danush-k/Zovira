@@ -1,132 +1,127 @@
-<script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
-import { Banknote, Building2, Check, CreditCard, Lock, MapPin, Plus, Smartphone, Truck, Wallet, Zap } from '@lucide/vue'
-import ZButton from '@/components/ui/ZButton.vue'
-import ZErrorState from '@/components/ui/ZErrorState.vue'
-import AddressCard from '@/components/account/AddressCard.vue'
-import AddressFormDialog from '@/components/account/AddressFormDialog.vue'
-import EmailVerificationNotice from '@/components/account/EmailVerificationNotice.vue'
-import OrderSummary from '@/components/cart/OrderSummary.vue'
-import SandboxPaymentDialog from '@/components/checkout/SandboxPaymentDialog.vue'
-import FormAlert from '@/components/auth/FormAlert.vue'
-import { accountApi } from '@/services/account'
-import { checkoutApi } from '@/services/checkout'
-import { errorMessage, toApiError } from '@/services/errors'
-import { useAuthStore } from '@/stores/auth'
-import { useCartStore } from '@/stores/cart'
-import { useToastStore } from '@/stores/toast'
-import { PaymentDismissedError, usePaymentFlow } from '@/composables/usePaymentFlow'
-import { formatDate, formatPrice } from '@/utils/format'
-import type { Address } from '@/types/api'
-import type { CheckoutPreview, DeliveryOption, PaymentMethod } from '@/types/order'
-
-const auth = useAuthStore()
-const cart = useCartStore()
-const toast = useToastStore()
-const router = useRouter()
-const payment = usePaymentFlow()
-
-const addresses = ref<Address[]>([])
-const addressId = ref<number | null>(null)
-const delivery = ref<DeliveryOption>('STANDARD')
-const method = ref<PaymentMethod>('UPI')
-const preview = ref<CheckoutPreview | null>(null)
-const loading = ref(true)
-const loadError = ref<unknown>(null)
-const placing = ref(false)
-const placeError = ref<string | null>(null)
-const addressDialog = ref(false)
-const step = ref<1 | 2 | 3>(1)
-let idempotencyKey = crypto.randomUUID()
-
-const address = computed(() => addresses.value.find((a) => a.id === addressId.value) ?? null)
-
-async function loadAddresses(selectId?: number) {
-  addresses.value = await accountApi.addresses()
-  addressId.value = selectId ?? addresses.value.find((a) => a.isDefault)?.id ?? addresses.value[0]?.id ?? null
-  if (addressId.value) step.value = 2
+<script setup>
+import { computed, onMounted, ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
+import { Banknote, Building2, Check, CreditCard, Lock, MapPin, Plus, Smartphone, Truck, Wallet, Zap } from '@lucide/vue';
+import ZButton from '@/components/ui/ZButton.vue';
+import ZErrorState from '@/components/ui/ZErrorState.vue';
+import AddressCard from '@/components/account/AddressCard.vue';
+import AddressFormDialog from '@/components/account/AddressFormDialog.vue';
+import EmailVerificationNotice from '@/components/account/EmailVerificationNotice.vue';
+import OrderSummary from '@/components/cart/OrderSummary.vue';
+import SandboxPaymentDialog from '@/components/checkout/SandboxPaymentDialog.vue';
+import FormAlert from '@/components/auth/FormAlert.vue';
+import { accountApi } from '@/services/account';
+import { checkoutApi } from '@/services/checkout';
+import { errorMessage, toApiError } from '@/services/errors';
+import { useAuthStore } from '@/stores/auth';
+import { useCartStore } from '@/stores/cart';
+import { useToastStore } from '@/stores/toast';
+import { PaymentDismissedError, usePaymentFlow } from '@/composables/usePaymentFlow';
+import { formatDate, formatPrice } from '@/utils/format';
+const auth = useAuthStore();
+const cart = useCartStore();
+const toast = useToastStore();
+const router = useRouter();
+const payment = usePaymentFlow();
+const addresses = ref([]);
+const addressId = ref(null);
+const delivery = ref('STANDARD');
+const method = ref('UPI');
+const preview = ref(null);
+const loading = ref(true);
+const loadError = ref(null);
+const placing = ref(false);
+const placeError = ref(null);
+const addressDialog = ref(false);
+const step = ref(1);
+let idempotencyKey = crypto.randomUUID();
+const address = computed(() => addresses.value.find((a) => a.id === addressId.value) ?? null);
+async function loadAddresses(selectId) {
+    addresses.value = await accountApi.addresses();
+    addressId.value = selectId ?? addresses.value.find((a) => a.isDefault)?.id ?? addresses.value[0]?.id ?? null;
+    if (addressId.value)
+        step.value = 2;
 }
-
 async function refreshPreview() {
-  if (!addressId.value) return
-  try {
-    preview.value = await checkoutApi.preview({ addressId: addressId.value, deliveryOption: delivery.value })
-    if (!preview.value.expressAvailable && delivery.value === 'EXPRESS') delivery.value = 'STANDARD'
-    if (!preview.value.codAvailable && method.value === 'COD') method.value = 'UPI'
-  } catch (e) {
-    loadError.value = e
-  }
-}
-
-onMounted(async () => {
-  try {
-    await loadAddresses()
-    await refreshPreview()
-    if (preview.value && !preview.value.cart.items.length) void router.replace('/cart')
-  } catch (e) {
-    loadError.value = e
-  } finally {
-    loading.value = false
-  }
-})
-
-watch([addressId, delivery], refreshPreview)
-
-const methods = computed(() => [
-  { value: 'UPI' as const, label: 'UPI', detail: 'Google Pay, PhonePe, Paytm and any UPI app', icon: Smartphone },
-  { value: 'CARD' as const, label: 'Credit or debit card', detail: 'Visa, Mastercard, RuPay and Amex', icon: CreditCard },
-  { value: 'NETBANKING' as const, label: 'Net banking', detail: 'All major Indian banks', icon: Building2 },
-  { value: 'WALLET' as const, label: 'Wallets', detail: 'Paytm, Amazon Pay, MobiKwik and more', icon: Wallet },
-  {
-    value: 'COD' as const,
-    label: 'Cash on delivery',
-    detail: preview.value?.codAvailable ? 'Pay in cash or UPI when your order arrives' : preview.value?.codUnavailableReason ?? '',
-    icon: Banknote,
-    disabled: !preview.value?.codAvailable,
-  },
-])
-
-const codFee = computed(() => (method.value === 'COD' ? (preview.value?.codFee ?? 0) : 0))
-const blocked = computed(
-  () => !preview.value || !address.value || !preview.value.serviceable || preview.value.cart.summary.hasIssues || !preview.value.emailVerified,
-)
-
-async function placeOrder() {
-  if (!addressId.value || blocked.value) return
-  placing.value = true
-  placeError.value = null
-  try {
-    const order = await checkoutApi.place(
-      { addressId: addressId.value, deliveryOption: delivery.value, paymentMethod: method.value },
-      idempotencyKey,
-    )
-    idempotencyKey = crypto.randomUUID()
-    void cart.load()
-    if (order.paymentRequired && order.payment) {
-      try {
-        await payment.pay(order.payment, method.value)
-      } catch (e) {
-        if (!(e instanceof PaymentDismissedError)) toast.error('Payment failed', errorMessage(e))
-        await router.push(`/order-confirmation/${order.orderNumber}`)
-        return
-      }
+    if (!addressId.value)
+        return;
+    try {
+        preview.value = await checkoutApi.preview({ addressId: addressId.value, deliveryOption: delivery.value });
+        if (!preview.value.expressAvailable && delivery.value === 'EXPRESS')
+            delivery.value = 'STANDARD';
+        if (!preview.value.codAvailable && method.value === 'COD')
+            method.value = 'UPI';
     }
-    await router.push(`/order-confirmation/${order.orderNumber}`)
-  } catch (e) {
-    const err = toApiError(e)
-    placeError.value = err.message
-    if (err.code === 'CART_HAS_ISSUES' || err.code === 'OUT_OF_STOCK') await refreshPreview()
-  } finally {
-    placing.value = false
-  }
+    catch (e) {
+        loadError.value = e;
+    }
 }
-
-async function onAddressSaved(saved: Address) {
-  await loadAddresses(saved.id)
+onMounted(async () => {
+    try {
+        await loadAddresses();
+        await refreshPreview();
+        if (preview.value && !preview.value.cart.items.length)
+            void router.replace('/cart');
+    }
+    catch (e) {
+        loadError.value = e;
+    }
+    finally {
+        loading.value = false;
+    }
+});
+watch([addressId, delivery], refreshPreview);
+const methods = computed(() => [
+    { value: 'UPI', label: 'UPI', detail: 'Google Pay, PhonePe, Paytm and any UPI app', icon: Smartphone },
+    { value: 'CARD', label: 'Credit or debit card', detail: 'Visa, Mastercard, RuPay and Amex', icon: CreditCard },
+    { value: 'NETBANKING', label: 'Net banking', detail: 'All major Indian banks', icon: Building2 },
+    { value: 'WALLET', label: 'Wallets', detail: 'Paytm, Amazon Pay, MobiKwik and more', icon: Wallet },
+    {
+        value: 'COD',
+        label: 'Cash on delivery',
+        detail: preview.value?.codAvailable ? 'Pay in cash or UPI when your order arrives' : preview.value?.codUnavailableReason ?? '',
+        icon: Banknote,
+        disabled: !preview.value?.codAvailable,
+    },
+]);
+const codFee = computed(() => (method.value === 'COD' ? (preview.value?.codFee ?? 0) : 0));
+const blocked = computed(() => !preview.value || !address.value || !preview.value.serviceable || preview.value.cart.summary.hasIssues || !preview.value.emailVerified);
+async function placeOrder() {
+    if (!addressId.value || blocked.value)
+        return;
+    placing.value = true;
+    placeError.value = null;
+    try {
+        const order = await checkoutApi.place({ addressId: addressId.value, deliveryOption: delivery.value, paymentMethod: method.value }, idempotencyKey);
+        idempotencyKey = crypto.randomUUID();
+        void cart.load();
+        if (order.paymentRequired && order.payment) {
+            try {
+                await payment.pay(order.payment, method.value);
+            }
+            catch (e) {
+                if (!(e instanceof PaymentDismissedError))
+                    toast.error('Payment failed', errorMessage(e));
+                await router.push(`/order-confirmation/${order.orderNumber}`);
+                return;
+            }
+        }
+        await router.push(`/order-confirmation/${order.orderNumber}`);
+    }
+    catch (e) {
+        const err = toApiError(e);
+        placeError.value = err.message;
+        if (err.code === 'CART_HAS_ISSUES' || err.code === 'OUT_OF_STOCK')
+            await refreshPreview();
+    }
+    finally {
+        placing.value = false;
+    }
 }
-
-const deliveryDate = (iso: string | null) => (iso ? formatDate(iso, { weekday: 'short', day: 'numeric', month: 'short' }) : '')
+async function onAddressSaved(saved) {
+    await loadAddresses(saved.id);
+}
+const deliveryDate = (iso) => (iso ? formatDate(iso, { weekday: 'short', day: 'numeric', month: 'short' }) : '');
 </script>
 
 <template>

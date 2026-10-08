@@ -1,15 +1,15 @@
-<script setup lang="ts">
-import { computed } from 'vue'
-import { Box } from '@lucide/vue'
-import ZBadge from '@/components/ui/ZBadge.vue'
-import ZPrice from '@/components/ui/ZPrice.vue'
-import ZRatingPill from '@/components/ui/ZRatingPill.vue'
-import WishlistButton from './WishlistButton.vue'
-import type { ProductSummary } from '@/types/catalog'
-
-const props = withDefaults(defineProps<{ product: ProductSummary; eager?: boolean }>(), { eager: false })
-
-const to = computed(() => `/p/${props.product.slug}`)
+<script setup>
+import { computed } from 'vue';
+import { Box } from '@lucide/vue';
+import ZBadge from '@/components/ui/ZBadge.vue';
+import ZPrice from '@/components/ui/ZPrice.vue';
+import ZRatingPill from '@/components/ui/ZRatingPill.vue';
+import WishlistButton from './WishlistButton.vue';
+const props = defineProps({
+    product: null,
+    eager: { type: Boolean, default: false }
+});
+const to = computed(() => `/p/${props.product.slug}`);
 </script>
 
 <template>

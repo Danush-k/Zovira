@@ -1,29 +1,26 @@
-<script setup lang="ts">
-import { computed } from 'vue'
-import { useRouter } from 'vue-router'
-import { ChevronDown, LayoutDashboard, LogOut, MapPin, ShieldCheck, Store, UserRound } from '@lucide/vue'
-import ZPopover from '@/components/ui/ZPopover.vue'
-import ZButton from '@/components/ui/ZButton.vue'
-import { useAuthStore } from '@/stores/auth'
-import { useToastStore } from '@/stores/toast'
-import { accountNav } from '@/views/account/accountNav'
-
-const auth = useAuthStore()
-const toast = useToastStore()
-const router = useRouter()
-
+<script setup>
+import { computed } from 'vue';
+import { useRouter } from 'vue-router';
+import { ChevronDown, LayoutDashboard, LogOut, MapPin, ShieldCheck, Store, UserRound } from '@lucide/vue';
+import ZPopover from '@/components/ui/ZPopover.vue';
+import ZButton from '@/components/ui/ZButton.vue';
+import { useAuthStore } from '@/stores/auth';
+import { useToastStore } from '@/stores/toast';
+import { accountNav } from '@/views/account/accountNav';
+const auth = useAuthStore();
+const toast = useToastStore();
+const router = useRouter();
 const links = computed(() => [
-  { label: 'Your account', to: '/account', icon: UserRound },
-  ...accountNav,
-  { label: 'Addresses', to: '/account/addresses', icon: MapPin },
-  { label: 'Login & security', to: '/account/security', icon: ShieldCheck },
-])
-
-async function signOut(close: () => void) {
-  close()
-  await auth.logout()
-  toast.info('You have been signed out')
-  await router.push('/')
+    { label: 'Your account', to: '/account', icon: UserRound },
+    ...accountNav,
+    { label: 'Addresses', to: '/account/addresses', icon: MapPin },
+    { label: 'Login & security', to: '/account/security', icon: ShieldCheck },
+]);
+async function signOut(close) {
+    close();
+    await auth.logout();
+    toast.info('You have been signed out');
+    await router.push('/');
 }
 </script>
 

@@ -1,52 +1,55 @@
-<script setup lang="ts">
-import { reactive, ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { Lock, Mail, UserRound } from '@lucide/vue'
-import ZButton from '@/components/ui/ZButton.vue'
-import ZInput from '@/components/ui/ZInput.vue'
-import FormAlert from '@/components/auth/FormAlert.vue'
-import PasswordStrength from '@/components/auth/PasswordStrength.vue'
-import { useAuthStore } from '@/stores/auth'
-import { useToastStore } from '@/stores/toast'
-import { errorMessage, fieldErrors, toApiError } from '@/services/errors'
-import { safeRedirect } from '@/router/redirect'
-
-const auth = useAuthStore()
-const toast = useToastStore()
-const route = useRoute()
-const router = useRouter()
-
-const form = reactive({ fullName: '', email: '', password: '' })
-const errors = ref<Record<string, string>>({})
-const formError = ref<string | null>(null)
-const submitting = ref(false)
-
+<script setup>
+import { reactive, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { Lock, Mail, UserRound } from '@lucide/vue';
+import ZButton from '@/components/ui/ZButton.vue';
+import ZInput from '@/components/ui/ZInput.vue';
+import FormAlert from '@/components/auth/FormAlert.vue';
+import PasswordStrength from '@/components/auth/PasswordStrength.vue';
+import { useAuthStore } from '@/stores/auth';
+import { useToastStore } from '@/stores/toast';
+import { errorMessage, fieldErrors, toApiError } from '@/services/errors';
+import { safeRedirect } from '@/router/redirect';
+const auth = useAuthStore();
+const toast = useToastStore();
+const route = useRoute();
+const router = useRouter();
+const form = reactive({ fullName: '', email: '', password: '' });
+const errors = ref({});
+const formError = ref(null);
+const submitting = ref(false);
 function validate() {
-  const e: Record<string, string> = {}
-  if (form.fullName.trim().length < 2) e.fullName = 'Enter your full name'
-  if (!/^\S+@\S+\.\S+$/.test(form.email.trim())) e.email = 'Enter a valid email address'
-  if (form.password.length < 8 || !/[A-Za-z]/.test(form.password) || !/\d/.test(form.password)) {
-    e.password = 'Use at least 8 characters with a letter and a number'
-  }
-  errors.value = e
-  return Object.keys(e).length === 0
+    const e = {};
+    if (form.fullName.trim().length < 2)
+        e.fullName = 'Enter your full name';
+    if (!/^\S+@\S+\.\S+$/.test(form.email.trim()))
+        e.email = 'Enter a valid email address';
+    if (form.password.length < 8 || !/[A-Za-z]/.test(form.password) || !/\d/.test(form.password)) {
+        e.password = 'Use at least 8 characters with a letter and a number';
+    }
+    errors.value = e;
+    return Object.keys(e).length === 0;
 }
-
 async function submit() {
-  formError.value = null
-  if (!validate()) return
-  submitting.value = true
-  try {
-    await auth.register(form.fullName.trim(), form.email.trim(), form.password)
-    toast.success('Welcome to Zovira', 'We sent a verification link to your email.')
-    await router.replace(safeRedirect(route.query.redirect))
-  } catch (e) {
-    errors.value = fieldErrors(e)
-    if (toApiError(e).code === 'EMAIL_TAKEN') errors.value.email = errorMessage(e)
-    else if (!Object.keys(errors.value).length) formError.value = errorMessage(e)
-  } finally {
-    submitting.value = false
-  }
+    formError.value = null;
+    if (!validate())
+        return;
+    submitting.value = true;
+    try {
+        await auth.register(form.fullName.trim(), form.email.trim(), form.password);
+        toast.success('Welcome to Zovira', 'We sent a verification link to your email.');
+        await router.replace(safeRedirect(route.query.redirect));
+    }
+    catch (e) {
+        errors.value = fieldErrors(e);
+        if (toApiError(e).code === 'EMAIL_TAKEN')
+            errors.value.email = errorMessage(e);
+        else if (!Object.keys(errors.value).length)
+            formError.value = errorMessage(e);
+    }
+    finally {
+        submitting.value = false;
+    }
 }
 </script>
 

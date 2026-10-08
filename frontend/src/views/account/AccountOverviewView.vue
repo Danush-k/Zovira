@@ -1,28 +1,25 @@
-<script setup lang="ts">
-import { computed } from 'vue'
-import { ChevronRight, MapPin, ShieldCheck, Store, UserRound } from '@lucide/vue'
-import { useAuthStore } from '@/stores/auth'
-import { accountNav } from './accountNav'
-import EmailVerificationNotice from '@/components/account/EmailVerificationNotice.vue'
-
-const auth = useAuthStore()
-
+<script setup>
+import { computed } from 'vue';
+import { ChevronRight, MapPin, ShieldCheck, Store, UserRound } from '@lucide/vue';
+import { useAuthStore } from '@/stores/auth';
+import { accountNav } from './accountNav';
+import EmailVerificationNotice from '@/components/account/EmailVerificationNotice.vue';
+const auth = useAuthStore();
 const tiles = computed(() => [
-  ...accountNav.map((n) => ({ ...n, body: tileCopy[n.label] ?? '' })),
-  { label: 'Profile', to: '/account/profile', icon: UserRound, body: 'Update your name and phone number' },
-  { label: 'Addresses', to: '/account/addresses', icon: MapPin, body: 'Manage delivery addresses' },
-  { label: 'Login & security', to: '/account/security', icon: ShieldCheck, body: 'Password and signed-in devices' },
-  ...(auth.isSeller
-    ? [{ label: 'Seller dashboard', to: '/seller', icon: Store, body: 'Manage listings, orders and payouts' }]
-    : [{ label: 'Sell on Zovira', to: '/sell', icon: Store, body: 'Reach customers across India' }]),
-])
-
-const tileCopy: Record<string, string> = {
-  Orders: 'Track, return or buy things again',
-  Wishlist: 'Products you saved for later',
-  Notifications: 'Order updates and offers',
-  Returns: 'Return requests and refunds',
-}
+    ...accountNav.map((n) => ({ ...n, body: tileCopy[n.label] ?? '' })),
+    { label: 'Profile', to: '/account/profile', icon: UserRound, body: 'Update your name and phone number' },
+    { label: 'Addresses', to: '/account/addresses', icon: MapPin, body: 'Manage delivery addresses' },
+    { label: 'Login & security', to: '/account/security', icon: ShieldCheck, body: 'Password and signed-in devices' },
+    ...(auth.isSeller
+        ? [{ label: 'Seller dashboard', to: '/seller', icon: Store, body: 'Manage listings, orders and payouts' }]
+        : [{ label: 'Sell on Zovira', to: '/sell', icon: Store, body: 'Reach customers across India' }]),
+]);
+const tileCopy = {
+    Orders: 'Track, return or buy things again',
+    Wishlist: 'Products you saved for later',
+    Notifications: 'Order updates and offers',
+    Returns: 'Return requests and refunds',
+};
 </script>
 
 <template>

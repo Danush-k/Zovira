@@ -1,22 +1,18 @@
-<script setup lang="ts">
-import { ref } from 'vue'
-import { ChevronDown, Zap } from '@lucide/vue'
-import CategoryIcon from '@/components/catalog/CategoryIcon.vue'
-import { useCatalogStore } from '@/stores/catalog'
-import type { CategoryNode } from '@/types/catalog'
-
-const catalog = useCatalogStore()
-const openId = ref<number | null>(null)
-let timer: ReturnType<typeof setTimeout> | undefined
-
-function enter(category: CategoryNode) {
-  clearTimeout(timer)
-  timer = setTimeout(() => (openId.value = category.children.length ? category.id : null), 90)
+<script setup>
+import { ref } from 'vue';
+import { ChevronDown, Zap } from '@lucide/vue';
+import CategoryIcon from '@/components/catalog/CategoryIcon.vue';
+import { useCatalogStore } from '@/stores/catalog';
+const catalog = useCatalogStore();
+const openId = ref(null);
+let timer;
+function enter(category) {
+    clearTimeout(timer);
+    timer = setTimeout(() => (openId.value = category.children.length ? category.id : null), 90);
 }
-
 function leave() {
-  clearTimeout(timer)
-  timer = setTimeout(() => (openId.value = null), 120)
+    clearTimeout(timer);
+    timer = setTimeout(() => (openId.value = null), 120);
 }
 </script>
 

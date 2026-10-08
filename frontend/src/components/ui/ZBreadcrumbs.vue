@@ -1,13 +1,8 @@
-<script setup lang="ts">
-import { ChevronRight } from '@lucide/vue'
-import type { RouteLocationRaw } from 'vue-router'
-
-export interface Crumb {
-  label: string
-  to?: RouteLocationRaw
-}
-
-defineProps<{ items: Crumb[] }>()
+<script setup>
+import { ChevronRight } from '@lucide/vue';
+defineProps({
+    items: null
+});
 </script>
 
 <template>

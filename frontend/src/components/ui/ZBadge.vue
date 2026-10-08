@@ -1,22 +1,21 @@
-<script setup lang="ts">
-export type BadgeTone = 'neutral' | 'brand' | 'accent' | 'success' | 'warning' | 'danger' | 'info' | 'deal' | 'dark'
+<script setup>
+defineProps({
+    tone: { default: 'neutral' },
+    size: { default: 'md' },
+    dot: { type: Boolean, default: false }
+});
+const tones = {
+    neutral: 'bg-ink-100 text-ink-700',
+    brand: 'bg-brand-50 text-brand-800',
+    accent: 'bg-accent-50 text-accent-700',
+    success: 'bg-success-soft text-success',
+    warning: 'bg-warning-soft text-warning',
+    danger: 'bg-danger-soft text-danger',
+    info: 'bg-info-soft text-info',
+    deal: 'bg-deal text-white',
+    dark: 'bg-ink-900 text-white',
+};
 
-withDefaults(defineProps<{ tone?: BadgeTone; size?: 'sm' | 'md'; dot?: boolean }>(), {
-  tone: 'neutral',
-  size: 'md',
-})
-
-const tones: Record<BadgeTone, string> = {
-  neutral: 'bg-ink-100 text-ink-700',
-  brand: 'bg-brand-50 text-brand-800',
-  accent: 'bg-accent-50 text-accent-700',
-  success: 'bg-success-soft text-success',
-  warning: 'bg-warning-soft text-warning',
-  danger: 'bg-danger-soft text-danger',
-  info: 'bg-info-soft text-info',
-  deal: 'bg-deal text-white',
-  dark: 'bg-ink-900 text-white',
-}
 </script>
 
 <template>

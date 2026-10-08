@@ -1,56 +1,56 @@
-<script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue'
-import ZButton from '@/components/ui/ZButton.vue'
-import ZInput from '@/components/ui/ZInput.vue'
-import ZTextarea from '@/components/ui/ZTextarea.vue'
-import ZSelect from '@/components/ui/ZSelect.vue'
-import ZBadge from '@/components/ui/ZBadge.vue'
-import FormAlert from '@/components/auth/FormAlert.vue'
-import { sellerApi } from '@/services/seller'
-import { errorMessage, fieldErrors } from '@/services/errors'
-import { useToastStore } from '@/stores/toast'
-import { INDIAN_STATES } from '@/utils/india'
-import { formatDate } from '@/utils/format'
-import type { SellerApplication, SellerProfile } from '@/types/seller'
-
-const toast = useToastStore()
-const profile = ref<SellerProfile | null>(null)
-const form = reactive<SellerApplication>({
-  storeName: '', description: '', gstin: '', supportEmail: '', supportPhone: '',
-  pickupLine1: '', pickupCity: '', pickupState: '', pickupPincode: '',
-})
-const errors = ref<Record<string, string>>({})
-const formError = ref<string | null>(null)
-const saving = ref(false)
-
+<script setup>
+import { onMounted, reactive, ref } from 'vue';
+import ZButton from '@/components/ui/ZButton.vue';
+import ZInput from '@/components/ui/ZInput.vue';
+import ZTextarea from '@/components/ui/ZTextarea.vue';
+import ZSelect from '@/components/ui/ZSelect.vue';
+import ZBadge from '@/components/ui/ZBadge.vue';
+import FormAlert from '@/components/auth/FormAlert.vue';
+import { sellerApi } from '@/services/seller';
+import { errorMessage, fieldErrors } from '@/services/errors';
+import { useToastStore } from '@/stores/toast';
+import { INDIAN_STATES } from '@/utils/india';
+import { formatDate } from '@/utils/format';
+const toast = useToastStore();
+const profile = ref(null);
+const form = reactive({
+    storeName: '', description: '', gstin: '', supportEmail: '', supportPhone: '',
+    pickupLine1: '', pickupCity: '', pickupState: '', pickupPincode: '',
+});
+const errors = ref({});
+const formError = ref(null);
+const saving = ref(false);
 onMounted(async () => {
-  try {
-    const p = await sellerApi.profile()
-    profile.value = p
-    Object.assign(form, {
-      storeName: p.storeName, description: p.description ?? '', gstin: p.gstin ?? '',
-      supportEmail: p.supportEmail ?? '', supportPhone: p.supportPhone ?? '',
-      pickupLine1: p.pickupLine1 ?? '', pickupCity: p.pickupCity ?? '',
-      pickupState: p.pickupState ?? '', pickupPincode: p.pickupPincode ?? '',
-    })
-  } catch (e) {
-    formError.value = errorMessage(e)
-  }
-})
-
+    try {
+        const p = await sellerApi.profile();
+        profile.value = p;
+        Object.assign(form, {
+            storeName: p.storeName, description: p.description ?? '', gstin: p.gstin ?? '',
+            supportEmail: p.supportEmail ?? '', supportPhone: p.supportPhone ?? '',
+            pickupLine1: p.pickupLine1 ?? '', pickupCity: p.pickupCity ?? '',
+            pickupState: p.pickupState ?? '', pickupPincode: p.pickupPincode ?? '',
+        });
+    }
+    catch (e) {
+        formError.value = errorMessage(e);
+    }
+});
 async function save() {
-  errors.value = {}
-  formError.value = null
-  saving.value = true
-  try {
-    profile.value = await sellerApi.updateProfile({ ...form, gstin: form.gstin || undefined })
-    toast.success('Store profile updated')
-  } catch (e) {
-    errors.value = fieldErrors(e)
-    if (!Object.keys(errors.value).length) formError.value = errorMessage(e)
-  } finally {
-    saving.value = false
-  }
+    errors.value = {};
+    formError.value = null;
+    saving.value = true;
+    try {
+        profile.value = await sellerApi.updateProfile({ ...form, gstin: form.gstin || undefined });
+        toast.success('Store profile updated');
+    }
+    catch (e) {
+        errors.value = fieldErrors(e);
+        if (!Object.keys(errors.value).length)
+            formError.value = errorMessage(e);
+    }
+    finally {
+        saving.value = false;
+    }
 }
 </script>
 

@@ -1,34 +1,30 @@
-<script setup lang="ts">
-import { computed, type Component } from 'vue'
-import { TrendingDown, TrendingUp } from '@lucide/vue'
-import ZSparkline from './ZSparkline.vue'
-
+<script setup>
+import { computed } from 'vue';
+import { TrendingDown, TrendingUp } from '@lucide/vue';
+import ZSparkline from './ZSparkline.vue';
 /**
  * Stat tile: label, value, optional delta against a named period, optional sparkline.
  * `upIsGood` decides the delta's colour so "returns up" is not shown as success.
  */
-const props = withDefaults(
-  defineProps<{
-    label: string
-    value: string
-    previous?: number | null
-    current?: number | null
-    comparisonLabel?: string
-    trend?: number[]
-    icon?: Component
-    upIsGood?: boolean
-    hint?: string
-  }>(),
-  { upIsGood: true, comparisonLabel: 'vs previous 30 days' },
-)
-
+const props = defineProps({
+    label: null,
+    value: null,
+    previous: null,
+    current: null,
+    comparisonLabel: { default: 'vs previous 30 days' },
+    trend: null,
+    icon: null,
+    upIsGood: { type: Boolean, default: true },
+    hint: null
+});
 const delta = computed(() => {
-  // With no baseline there is no honest percentage to show; the hint carries the context instead.
-  if (props.previous == null || props.current == null || props.previous === 0) return null
-  return ((props.current - props.previous) / Math.abs(props.previous)) * 100
-})
-const positive = computed(() => (delta.value ?? 0) >= 0)
-const good = computed(() => positive.value === props.upIsGood)
+    // With no baseline there is no honest percentage to show; the hint carries the context instead.
+    if (props.previous == null || props.current == null || props.previous === 0)
+        return null;
+    return ((props.current - props.previous) / Math.abs(props.previous)) * 100;
+});
+const positive = computed(() => (delta.value ?? 0) >= 0);
+const good = computed(() => positive.value === props.upIsGood);
 </script>
 
 <template>

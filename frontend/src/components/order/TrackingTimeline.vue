@@ -1,44 +1,41 @@
-<script setup lang="ts">
-import { computed } from 'vue'
-import { Check, X } from '@lucide/vue'
-import { formatDateTime } from '@/utils/format'
-import type { OrderDetail } from '@/types/order'
-
-const props = defineProps<{ order: OrderDetail }>()
-
+<script setup>
+import { computed } from 'vue';
+import { Check, X } from '@lucide/vue';
+import { formatDateTime } from '@/utils/format';
+const props = defineProps({
+    order: null
+});
 const PATH = [
-  { status: 'PLACED', label: 'Order placed' },
-  { status: 'CONFIRMED', label: 'Payment confirmed' },
-  { status: 'PROCESSING', label: 'Seller preparing package' },
-  { status: 'SHIPPED', label: 'Shipped' },
-  { status: 'OUT_FOR_DELIVERY', label: 'Out for delivery' },
-  { status: 'DELIVERED', label: 'Delivered' },
-]
-
-const halted = computed(() => ['CANCELLED', 'PAYMENT_FAILED'].includes(props.order.status))
-
+    { status: 'PLACED', label: 'Order placed' },
+    { status: 'CONFIRMED', label: 'Payment confirmed' },
+    { status: 'PROCESSING', label: 'Seller preparing package' },
+    { status: 'SHIPPED', label: 'Shipped' },
+    { status: 'OUT_FOR_DELIVERY', label: 'Out for delivery' },
+    { status: 'DELIVERED', label: 'Delivered' },
+];
+const halted = computed(() => ['CANCELLED', 'PAYMENT_FAILED'].includes(props.order.status));
 const steps = computed(() => {
-  const reached = new Map(props.order.timeline.map((t) => [t.status, t]))
-  const currentIndex = PATH.reduce((acc, s, i) => (reached.has(s.status) ? i : acc), -1)
-  const list = PATH.map((s, i) => ({
-    ...s,
-    label: s.status === 'CONFIRMED' && props.order.paymentMethod === 'COD' ? 'Order confirmed' : s.label,
-    at: reached.get(s.status)?.at ?? null,
-    note: reached.get(s.status)?.note ?? null,
-    state: i < currentIndex ? 'done' : i === currentIndex ? (i === PATH.length - 1 ? 'done' : 'current') : 'upcoming',
-  }))
-  if (halted.value) {
-    const stop = props.order.timeline.find((t) => t.status === props.order.status)
-    return [...list.slice(0, currentIndex + 1).map((s) => ({ ...s, state: 'done' })), {
-      status: props.order.status,
-      label: props.order.status === 'CANCELLED' ? 'Cancelled' : 'Payment not completed',
-      at: stop?.at ?? null,
-      note: stop?.note ?? null,
-      state: 'halted',
-    }]
-  }
-  return list
-})
+    const reached = new Map(props.order.timeline.map((t) => [t.status, t]));
+    const currentIndex = PATH.reduce((acc, s, i) => (reached.has(s.status) ? i : acc), -1);
+    const list = PATH.map((s, i) => ({
+        ...s,
+        label: s.status === 'CONFIRMED' && props.order.paymentMethod === 'COD' ? 'Order confirmed' : s.label,
+        at: reached.get(s.status)?.at ?? null,
+        note: reached.get(s.status)?.note ?? null,
+        state: i < currentIndex ? 'done' : i === currentIndex ? (i === PATH.length - 1 ? 'done' : 'current') : 'upcoming',
+    }));
+    if (halted.value) {
+        const stop = props.order.timeline.find((t) => t.status === props.order.status);
+        return [...list.slice(0, currentIndex + 1).map((s) => ({ ...s, state: 'done' })), {
+                status: props.order.status,
+                label: props.order.status === 'CANCELLED' ? 'Cancelled' : 'Payment not completed',
+                at: stop?.at ?? null,
+                note: stop?.note ?? null,
+                state: 'halted',
+            }];
+    }
+    return list;
+});
 </script>
 
 <template>

@@ -1,28 +1,23 @@
-<script setup lang="ts">
-import { computed } from 'vue'
-import { AlertTriangle, RotateCw, WifiOff } from '@lucide/vue'
-import ZButton from './ZButton.vue'
-import { errorMessage, isNetworkError } from '@/services/errors'
-
-const props = withDefaults(
-  defineProps<{ error?: unknown; title?: string; description?: string; compact?: boolean }>(),
-  { compact: false },
-)
-defineEmits<{ retry: [] }>()
-
-const offline = computed(() => isNetworkError(props.error))
-const heading = computed(
-  () => props.title ?? (offline.value ? "You're offline" : 'Something went wrong. Please try again.'),
-)
-const detail = computed(
-  () =>
-    props.description ??
+<script setup>
+import { computed } from 'vue';
+import { AlertTriangle, RotateCw, WifiOff } from '@lucide/vue';
+import ZButton from './ZButton.vue';
+import { errorMessage, isNetworkError } from '@/services/errors';
+const props = defineProps({
+    error: null,
+    title: null,
+    description: null,
+    compact: { type: Boolean, default: false }
+});
+defineEmits(["retry"]);
+const offline = computed(() => isNetworkError(props.error));
+const heading = computed(() => props.title ?? (offline.value ? "You're offline" : 'Something went wrong. Please try again.'));
+const detail = computed(() => props.description ??
     (offline.value
-      ? 'Check your internet connection and try again.'
-      : props.error
-        ? errorMessage(props.error)
-        : undefined),
-)
+        ? 'Check your internet connection and try again.'
+        : props.error
+            ? errorMessage(props.error)
+            : undefined));
 </script>
 
 <template>

@@ -1,24 +1,21 @@
-<script setup lang="ts">
-import { computed } from 'vue'
-import { useRoute } from 'vue-router'
-import { LayoutGrid, MapPin, ShieldCheck, UserRound } from '@lucide/vue'
-import ZAvatar from '@/components/ui/ZAvatar.vue'
-import { useAuthStore } from '@/stores/auth'
-import { accountNav } from './accountNav'
-
-const auth = useAuthStore()
-const route = useRoute()
-
+<script setup>
+import { computed } from 'vue';
+import { useRoute } from 'vue-router';
+import { LayoutGrid, MapPin, ShieldCheck, UserRound } from '@lucide/vue';
+import ZAvatar from '@/components/ui/ZAvatar.vue';
+import { useAuthStore } from '@/stores/auth';
+import { accountNav } from './accountNav';
+const auth = useAuthStore();
+const route = useRoute();
 const items = computed(() => [
-  { label: 'Overview', to: '/account', icon: LayoutGrid, exact: true },
-  ...accountNav,
-  { label: 'Profile', to: '/account/profile', icon: UserRound },
-  { label: 'Addresses', to: '/account/addresses', icon: MapPin },
-  { label: 'Login & security', to: '/account/security', icon: ShieldCheck },
-])
-
-function active(to: string, exact?: boolean) {
-  return exact ? route.path === to : route.path.startsWith(to)
+    { label: 'Overview', to: '/account', icon: LayoutGrid, exact: true },
+    ...accountNav,
+    { label: 'Profile', to: '/account/profile', icon: UserRound },
+    { label: 'Addresses', to: '/account/addresses', icon: MapPin },
+    { label: 'Login & security', to: '/account/security', icon: ShieldCheck },
+]);
+function active(to, exact) {
+    return exact ? route.path === to : route.path.startsWith(to);
 }
 </script>
 

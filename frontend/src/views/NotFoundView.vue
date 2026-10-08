@@ -1,15 +1,14 @@
-<script setup lang="ts">
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { Home, Search } from '@lucide/vue'
-import ZButton from '@/components/ui/ZButton.vue'
-
-const router = useRouter()
-const query = ref('')
-
+<script setup>
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { Home, Search } from '@lucide/vue';
+import ZButton from '@/components/ui/ZButton.vue';
+const router = useRouter();
+const query = ref('');
 function search() {
-  const q = query.value.trim()
-  if (q) void router.push({ path: '/search', query: { q } })
+    const q = query.value.trim();
+    if (q)
+        void router.push({ path: '/search', query: { q } });
 }
 </script>
 

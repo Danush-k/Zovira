@@ -1,169 +1,169 @@
-<script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { ArrowLeft, ImagePlus, Plus, Trash2 } from '@lucide/vue'
-import ZButton from '@/components/ui/ZButton.vue'
-import ZInput from '@/components/ui/ZInput.vue'
-import ZTextarea from '@/components/ui/ZTextarea.vue'
-import ZSelect from '@/components/ui/ZSelect.vue'
-import ZCheckbox from '@/components/ui/ZCheckbox.vue'
-import ZSpinner from '@/components/ui/ZSpinner.vue'
-import FormAlert from '@/components/auth/FormAlert.vue'
-import { sellerApi } from '@/services/seller'
-import { catalogApi } from '@/services/catalog'
-import { http } from '@/services/http'
-import { errorMessage, fieldErrors } from '@/services/errors'
-import { useCatalogStore } from '@/stores/catalog'
-import { useToastStore } from '@/stores/toast'
-import type { SellerProductInput, VariantInput } from '@/types/seller'
-import type { Brand } from '@/types/catalog'
-
-const route = useRoute()
-const router = useRouter()
-const catalog = useCatalogStore()
-const toast = useToastStore()
-const productId = computed(() => (route.params.id === 'new' ? null : Number(route.params.id)))
-
-const form = reactive<SellerProductInput>({
-  title: '',
-  categoryId: null,
-  brandId: null,
-  newBrandName: '',
-  shortDescription: '',
-  description: '',
-  highlights: [],
-  tags: '',
-  warranty: '',
-  returnable: true,
-  returnWindowDays: 7,
-  codAvailable: true,
-  modelUrl: '',
-  arModelUrl: '',
-  attributes: [],
-  variants: [{ options: {}, price: 0, mrp: 0, stock: 0, isDefault: true, active: true, name: 'Standard' }],
-  images: [],
-  specifications: [],
-  publish: false,
-})
-
-const brands = ref<Brand[]>([])
-const errors = ref<Record<string, string>>({})
-const formError = ref<string | null>(null)
-const saving = ref(false)
-const uploading = ref(false)
-const loading = ref(false)
-const highlightsText = ref('')
-
-const leafCategories = computed(() =>
-  catalog.flat.filter((c) => !c.children.length).map((c) => ({ value: c.id, label: c.parent ? `${c.parent.name} › ${c.name}` : c.name })),
-)
-const brandOptions = computed(() => [{ value: 0, label: 'No brand / add new' }, ...brands.value.map((b) => ({ value: b.id, label: b.name }))])
-
+<script setup>
+import { computed, onMounted, reactive, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { ArrowLeft, ImagePlus, Plus, Trash2 } from '@lucide/vue';
+import ZButton from '@/components/ui/ZButton.vue';
+import ZInput from '@/components/ui/ZInput.vue';
+import ZTextarea from '@/components/ui/ZTextarea.vue';
+import ZSelect from '@/components/ui/ZSelect.vue';
+import ZCheckbox from '@/components/ui/ZCheckbox.vue';
+import ZSpinner from '@/components/ui/ZSpinner.vue';
+import FormAlert from '@/components/auth/FormAlert.vue';
+import { sellerApi } from '@/services/seller';
+import { catalogApi } from '@/services/catalog';
+import { http } from '@/services/http';
+import { errorMessage, fieldErrors } from '@/services/errors';
+import { useCatalogStore } from '@/stores/catalog';
+import { useToastStore } from '@/stores/toast';
+const route = useRoute();
+const router = useRouter();
+const catalog = useCatalogStore();
+const toast = useToastStore();
+const productId = computed(() => (route.params.id === 'new' ? null : Number(route.params.id)));
+const form = reactive({
+    title: '',
+    categoryId: null,
+    brandId: null,
+    newBrandName: '',
+    shortDescription: '',
+    description: '',
+    highlights: [],
+    tags: '',
+    warranty: '',
+    returnable: true,
+    returnWindowDays: 7,
+    codAvailable: true,
+    modelUrl: '',
+    arModelUrl: '',
+    attributes: [],
+    variants: [{ options: {}, price: 0, mrp: 0, stock: 0, isDefault: true, active: true, name: 'Standard' }],
+    images: [],
+    specifications: [],
+    publish: false,
+});
+const brands = ref([]);
+const errors = ref({});
+const formError = ref(null);
+const saving = ref(false);
+const uploading = ref(false);
+const loading = ref(false);
+const highlightsText = ref('');
+const leafCategories = computed(() => catalog.flat.filter((c) => !c.children.length).map((c) => ({ value: c.id, label: c.parent ? `${c.parent.name} › ${c.name}` : c.name })));
+const brandOptions = computed(() => [{ value: 0, label: 'No brand / add new' }, ...brands.value.map((b) => ({ value: b.id, label: b.name }))]);
 onMounted(async () => {
-  await catalog.loadCategories().catch(() => undefined)
-  brands.value = await catalogApi.brands().catch(() => [])
-  if (productId.value) {
-    loading.value = true
-    try {
-      const page = await sellerApi.products({ size: 100 })
-      const found = page.content.find((p) => p.id === productId.value)
-      if (!found) throw new Error('Not found')
-      const detail = await catalogApi.product(found.slug)
-      form.title = detail.title
-      form.categoryId = detail.category.id
-      form.brandId = detail.brand?.id ?? null
-      form.shortDescription = detail.shortDescription ?? ''
-      form.description = detail.description ?? ''
-      form.highlights = detail.highlights
-      highlightsText.value = detail.highlights.join('\n')
-      form.tags = detail.tags.join(',')
-      form.warranty = detail.warranty ?? ''
-      form.returnable = detail.returnable
-      form.returnWindowDays = detail.returnWindowDays || 7
-      form.codAvailable = detail.codAvailable
-      form.modelUrl = detail.model?.modelUrl ?? ''
-      form.arModelUrl = detail.model?.arModelUrl ?? ''
-      form.attributes = detail.attributes.map((a) => ({ name: a.name, options: a.options }))
-      form.images = detail.images.map((i) => ({ url: i.url, altText: i.altText ?? undefined }))
-      form.specifications = detail.specifications.flatMap((g) => g.items.map((i) => ({ group: g.group, name: i.name, value: i.value })))
-      const inventory = await sellerApi.inventory()
-      form.variants = detail.variants.map<VariantInput>((v) => ({
-        id: v.id,
-        sku: v.sku,
-        name: v.name,
-        options: v.options,
-        price: v.price,
-        mrp: v.mrp,
-        stock: inventory.find((r) => r.variantId === v.id)?.available ?? 0,
-        isDefault: v.isDefault,
-        active: true,
-      }))
-      form.publish = detail.status === 'ACTIVE'
-    } catch (e) {
-      formError.value = errorMessage(e)
-    } finally {
-      loading.value = false
+    await catalog.loadCategories().catch(() => undefined);
+    brands.value = await catalogApi.brands().catch(() => []);
+    if (productId.value) {
+        loading.value = true;
+        try {
+            const page = await sellerApi.products({ size: 100 });
+            const found = page.content.find((p) => p.id === productId.value);
+            if (!found)
+                throw new Error('Not found');
+            const detail = await catalogApi.product(found.slug);
+            form.title = detail.title;
+            form.categoryId = detail.category.id;
+            form.brandId = detail.brand?.id ?? null;
+            form.shortDescription = detail.shortDescription ?? '';
+            form.description = detail.description ?? '';
+            form.highlights = detail.highlights;
+            highlightsText.value = detail.highlights.join('\n');
+            form.tags = detail.tags.join(',');
+            form.warranty = detail.warranty ?? '';
+            form.returnable = detail.returnable;
+            form.returnWindowDays = detail.returnWindowDays || 7;
+            form.codAvailable = detail.codAvailable;
+            form.modelUrl = detail.model?.modelUrl ?? '';
+            form.arModelUrl = detail.model?.arModelUrl ?? '';
+            form.attributes = detail.attributes.map((a) => ({ name: a.name, options: a.options }));
+            form.images = detail.images.map((i) => ({ url: i.url, altText: i.altText ?? undefined }));
+            form.specifications = detail.specifications.flatMap((g) => g.items.map((i) => ({ group: g.group, name: i.name, value: i.value })));
+            const inventory = await sellerApi.inventory();
+            form.variants = detail.variants.map((v) => ({
+                id: v.id,
+                sku: v.sku,
+                name: v.name,
+                options: v.options,
+                price: v.price,
+                mrp: v.mrp,
+                stock: inventory.find((r) => r.variantId === v.id)?.available ?? 0,
+                isDefault: v.isDefault,
+                active: true,
+            }));
+            form.publish = detail.status === 'ACTIVE';
+        }
+        catch (e) {
+            formError.value = errorMessage(e);
+        }
+        finally {
+            loading.value = false;
+        }
     }
-  }
-})
-
+});
 function addVariant() {
-  form.variants.push({ options: {}, price: 0, mrp: 0, stock: 0, isDefault: false, active: true, name: '' })
+    form.variants.push({ options: {}, price: 0, mrp: 0, stock: 0, isDefault: false, active: true, name: '' });
 }
-
-function removeVariant(index: number) {
-  form.variants.splice(index, 1)
-  if (!form.variants.some((v) => v.isDefault) && form.variants[0]) form.variants[0].isDefault = true
+function removeVariant(index) {
+    form.variants.splice(index, 1);
+    if (!form.variants.some((v) => v.isDefault) && form.variants[0])
+        form.variants[0].isDefault = true;
 }
-
-function setDefault(index: number) {
-  form.variants.forEach((v, i) => (v.isDefault = i === index))
+function setDefault(index) {
+    form.variants.forEach((v, i) => (v.isDefault = i === index));
 }
-
 function addSpec() {
-  form.specifications!.push({ group: 'General', name: '', value: '' })
+    form.specifications.push({ group: 'General', name: '', value: '' });
 }
-
-async function upload(event: Event) {
-  const input = event.target as HTMLInputElement
-  if (!input.files?.length) return
-  uploading.value = true
-  try {
-    const body = new FormData()
-    Array.from(input.files).slice(0, 12).forEach((f) => body.append('files', f))
-    const { data } = await http.post<{ url: string }[]>('/seller/products/images', body)
-    form.images = [...(form.images ?? []), ...data.map((d) => ({ url: d.url }))]
-  } catch (e) {
-    toast.error("Couldn't upload images", errorMessage(e))
-  } finally {
-    uploading.value = false
-    input.value = ''
-  }
+async function upload(event) {
+    const input = event.target;
+    if (!input.files?.length)
+        return;
+    uploading.value = true;
+    try {
+        const body = new FormData();
+        Array.from(input.files).slice(0, 12).forEach((f) => body.append('files', f));
+        const { data } = await http.post('/seller/products/images', body);
+        form.images = [...(form.images ?? []), ...data.map((d) => ({ url: d.url }))];
+    }
+    catch (e) {
+        toast.error("Couldn't upload images", errorMessage(e));
+    }
+    finally {
+        uploading.value = false;
+        input.value = '';
+    }
 }
-
-async function save(publish: boolean) {
-  errors.value = {}
-  formError.value = null
-  form.publish = publish
-  form.highlights = highlightsText.value.split('\n').map((s) => s.trim()).filter(Boolean).slice(0, 10)
-  if (!form.categoryId) errors.value.categoryId = 'Choose a category'
-  if (form.title.trim().length < 5) errors.value.title = 'Enter a product title of at least 5 characters'
-  if (!form.variants.length) formError.value = 'Add at least one variant'
-  if (Object.keys(errors.value).length || formError.value) return
-
-  saving.value = true
-  try {
-    const payload: SellerProductInput = { ...form, brandId: form.brandId || null, specifications: form.specifications?.filter((s) => s.name && s.value) }
-    if (productId.value) await sellerApi.updateProduct(productId.value, payload)
-    else await sellerApi.createProduct(payload)
-    toast.success(publish ? 'Product published' : 'Draft saved')
-    await router.push('/seller/products')
-  } catch (e) {
-    errors.value = fieldErrors(e)
-    if (!Object.keys(errors.value).length) formError.value = errorMessage(e)
-  } finally {
-    saving.value = false
-  }
+async function save(publish) {
+    errors.value = {};
+    formError.value = null;
+    form.publish = publish;
+    form.highlights = highlightsText.value.split('\n').map((s) => s.trim()).filter(Boolean).slice(0, 10);
+    if (!form.categoryId)
+        errors.value.categoryId = 'Choose a category';
+    if (form.title.trim().length < 5)
+        errors.value.title = 'Enter a product title of at least 5 characters';
+    if (!form.variants.length)
+        formError.value = 'Add at least one variant';
+    if (Object.keys(errors.value).length || formError.value)
+        return;
+    saving.value = true;
+    try {
+        const payload = { ...form, brandId: form.brandId || null, specifications: form.specifications?.filter((s) => s.name && s.value) };
+        if (productId.value)
+            await sellerApi.updateProduct(productId.value, payload);
+        else
+            await sellerApi.createProduct(payload);
+        toast.success(publish ? 'Product published' : 'Draft saved');
+        await router.push('/seller/products');
+    }
+    catch (e) {
+        errors.value = fieldErrors(e);
+        if (!Object.keys(errors.value).length)
+            formError.value = errorMessage(e);
+    }
+    finally {
+        saving.value = false;
+    }
 }
 </script>
 
@@ -204,7 +204,7 @@ async function save(publish: boolean) {
         <ul v-if="form.images?.length" class="grid grid-cols-3 gap-3 sm:grid-cols-6">
           <li v-for="(img, i) in form.images" :key="img.url" class="relative">
             <img :src="img.url" alt="" class="aspect-square w-full rounded-lg border border-ink-150 bg-ink-50 object-contain p-1.5" />
-            <button type="button" class="absolute -top-2 -right-2 grid size-7 place-items-center rounded-full bg-white shadow-raised hover:text-danger" :aria-label="`Remove image ${i + 1}`" @click="form.images!.splice(i, 1)">
+            <button type="button" class="absolute -top-2 -right-2 grid size-7 place-items-center rounded-full bg-white shadow-raised hover:text-danger" :aria-label="`Remove image ${i + 1}`" @click="form.images.splice(i, 1)">
               <Trash2 class="size-3.5" />
             </button>
           </li>
@@ -246,7 +246,7 @@ async function save(publish: boolean) {
           <input v-model="s.group" placeholder="Group" class="field-control h-9" :aria-label="`Spec ${i + 1} group`" />
           <input v-model="s.name" placeholder="Name" class="field-control h-9" :aria-label="`Spec ${i + 1} name`" />
           <input v-model="s.value" placeholder="Value" class="field-control h-9" :aria-label="`Spec ${i + 1} value`" />
-          <button type="button" class="px-2 text-ink-400 hover:text-danger" :aria-label="`Remove spec ${i + 1}`" @click="form.specifications!.splice(i, 1)"><Trash2 class="size-4" /></button>
+          <button type="button" class="px-2 text-ink-400 hover:text-danger" :aria-label="`Remove spec ${i + 1}`" @click="form.specifications.splice(i, 1)"><Trash2 class="size-4" /></button>
         </div>
       </section>
 

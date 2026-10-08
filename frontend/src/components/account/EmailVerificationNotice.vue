@@ -1,28 +1,28 @@
-<script setup lang="ts">
-import { ref } from 'vue'
-import { MailWarning } from '@lucide/vue'
-import ZButton from '@/components/ui/ZButton.vue'
-import { authApi } from '@/services/auth'
-import { errorMessage } from '@/services/errors'
-import { useAuthStore } from '@/stores/auth'
-import { useToastStore } from '@/stores/toast'
-
-const auth = useAuthStore()
-const toast = useToastStore()
-const sending = ref(false)
-const sent = ref(false)
-
+<script setup>
+import { ref } from 'vue';
+import { MailWarning } from '@lucide/vue';
+import ZButton from '@/components/ui/ZButton.vue';
+import { authApi } from '@/services/auth';
+import { errorMessage } from '@/services/errors';
+import { useAuthStore } from '@/stores/auth';
+import { useToastStore } from '@/stores/toast';
+const auth = useAuthStore();
+const toast = useToastStore();
+const sending = ref(false);
+const sent = ref(false);
 async function resend() {
-  sending.value = true
-  try {
-    await authApi.resendVerification()
-    sent.value = true
-    toast.success('Verification email sent', `Check ${auth.user?.email} for the link.`)
-  } catch (e) {
-    toast.error("Couldn't send the email", errorMessage(e))
-  } finally {
-    sending.value = false
-  }
+    sending.value = true;
+    try {
+        await authApi.resendVerification();
+        sent.value = true;
+        toast.success('Verification email sent', `Check ${auth.user?.email} for the link.`);
+    }
+    catch (e) {
+        toast.error("Couldn't send the email", errorMessage(e));
+    }
+    finally {
+        sending.value = false;
+    }
 }
 </script>
 

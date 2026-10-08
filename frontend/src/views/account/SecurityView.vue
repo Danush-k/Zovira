@@ -1,101 +1,100 @@
-<script setup lang="ts">
-import { reactive, ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { Laptop, LogOut, Smartphone } from '@lucide/vue'
-import ZButton from '@/components/ui/ZButton.vue'
-import ZInput from '@/components/ui/ZInput.vue'
-import ZBadge from '@/components/ui/ZBadge.vue'
-import ZErrorState from '@/components/ui/ZErrorState.vue'
-import PasswordStrength from '@/components/auth/PasswordStrength.vue'
-import EmailVerificationNotice from '@/components/account/EmailVerificationNotice.vue'
-import { accountApi } from '@/services/account'
-import { authApi } from '@/services/auth'
-import { errorMessage, fieldErrors } from '@/services/errors'
-import { useAsync } from '@/composables/useAsync'
-import { useAuthStore } from '@/stores/auth'
-import { useToastStore } from '@/stores/toast'
-import { formatDateTime } from '@/utils/format'
-
-const auth = useAuthStore()
-const toast = useToastStore()
-const router = useRouter()
-
-const pw = reactive({ current: '', next: '' })
-const pwErrors = ref<Record<string, string>>({})
-const savingPw = ref(false)
-
-const { data: sessions, loading, error, execute: loadSessions } = useAsync(authApi.sessions, { immediate: true })
-const signingOutAll = ref(false)
-
+<script setup>
+import { reactive, ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { Laptop, LogOut, Smartphone } from '@lucide/vue';
+import ZButton from '@/components/ui/ZButton.vue';
+import ZInput from '@/components/ui/ZInput.vue';
+import ZBadge from '@/components/ui/ZBadge.vue';
+import ZErrorState from '@/components/ui/ZErrorState.vue';
+import PasswordStrength from '@/components/auth/PasswordStrength.vue';
+import EmailVerificationNotice from '@/components/account/EmailVerificationNotice.vue';
+import { accountApi } from '@/services/account';
+import { authApi } from '@/services/auth';
+import { errorMessage, fieldErrors } from '@/services/errors';
+import { useAsync } from '@/composables/useAsync';
+import { useAuthStore } from '@/stores/auth';
+import { useToastStore } from '@/stores/toast';
+import { formatDateTime } from '@/utils/format';
+const auth = useAuthStore();
+const toast = useToastStore();
+const router = useRouter();
+const pw = reactive({ current: '', next: '' });
+const pwErrors = ref({});
+const savingPw = ref(false);
+const { data: sessions, loading, error, execute: loadSessions } = useAsync(authApi.sessions, { immediate: true });
+const signingOutAll = ref(false);
 async function changePassword() {
-  pwErrors.value = {}
-  if (!pw.current) pwErrors.value.currentPassword = 'Enter your current password'
-  if (pw.next.length < 8 || !/[A-Za-z]/.test(pw.next) || !/\d/.test(pw.next)) {
-    pwErrors.value.newPassword = 'Use at least 8 characters with a letter and a number'
-  }
-  if (Object.keys(pwErrors.value).length) return
-  savingPw.value = true
-  try {
-    await accountApi.changePassword(pw.current, pw.next)
-    pw.current = ''
-    pw.next = ''
-    toast.success('Password changed', 'Other devices have been signed out.')
-    await loadSessions()
-  } catch (e) {
-    const fe = fieldErrors(e)
-    pwErrors.value = Object.keys(fe).length ? fe : { currentPassword: errorMessage(e) }
-  } finally {
-    savingPw.value = false
-  }
+    pwErrors.value = {};
+    if (!pw.current)
+        pwErrors.value.currentPassword = 'Enter your current password';
+    if (pw.next.length < 8 || !/[A-Za-z]/.test(pw.next) || !/\d/.test(pw.next)) {
+        pwErrors.value.newPassword = 'Use at least 8 characters with a letter and a number';
+    }
+    if (Object.keys(pwErrors.value).length)
+        return;
+    savingPw.value = true;
+    try {
+        await accountApi.changePassword(pw.current, pw.next);
+        pw.current = '';
+        pw.next = '';
+        toast.success('Password changed', 'Other devices have been signed out.');
+        await loadSessions();
+    }
+    catch (e) {
+        const fe = fieldErrors(e);
+        pwErrors.value = Object.keys(fe).length ? fe : { currentPassword: errorMessage(e) };
+    }
+    finally {
+        savingPw.value = false;
+    }
 }
-
-async function revoke(id: number) {
-  try {
-    await authApi.revokeSession(id)
-    await loadSessions()
-  } catch (e) {
-    toast.error("Couldn't sign out that device", errorMessage(e))
-  }
+async function revoke(id) {
+    try {
+        await authApi.revokeSession(id);
+        await loadSessions();
+    }
+    catch (e) {
+        toast.error("Couldn't sign out that device", errorMessage(e));
+    }
 }
-
 async function signOutEverywhere() {
-  signingOutAll.value = true
-  try {
-    await authApi.logoutAll()
-  } finally {
-    await auth.logout().catch(() => undefined)
-    signingOutAll.value = false
-    toast.info('Signed out of all devices')
-    await router.replace('/login')
-  }
+    signingOutAll.value = true;
+    try {
+        await authApi.logoutAll();
+    }
+    finally {
+        await auth.logout().catch(() => undefined);
+        signingOutAll.value = false;
+        toast.info('Signed out of all devices');
+        await router.replace('/login');
+    }
 }
-
-function describe(ua: string | null) {
-  if (!ua) return 'Unknown device'
-  const browser = /Edg\//.test(ua)
-    ? 'Edge'
-    : /Chrome\//.test(ua)
-      ? 'Chrome'
-      : /Firefox\//.test(ua)
-        ? 'Firefox'
-        : /Safari\//.test(ua)
-          ? 'Safari'
-          : 'Browser'
-  const os = /Android/.test(ua)
-    ? 'Android'
-    : /iPhone|iPad/.test(ua)
-      ? 'iOS'
-      : /Mac OS X/.test(ua)
-        ? 'macOS'
-        : /Windows/.test(ua)
-          ? 'Windows'
-          : /Linux/.test(ua)
-            ? 'Linux'
-            : ''
-  return os ? `${browser} on ${os}` : browser
+function describe(ua) {
+    if (!ua)
+        return 'Unknown device';
+    const browser = /Edg\//.test(ua)
+        ? 'Edge'
+        : /Chrome\//.test(ua)
+            ? 'Chrome'
+            : /Firefox\//.test(ua)
+                ? 'Firefox'
+                : /Safari\//.test(ua)
+                    ? 'Safari'
+                    : 'Browser';
+    const os = /Android/.test(ua)
+        ? 'Android'
+        : /iPhone|iPad/.test(ua)
+            ? 'iOS'
+            : /Mac OS X/.test(ua)
+                ? 'macOS'
+                : /Windows/.test(ua)
+                    ? 'Windows'
+                    : /Linux/.test(ua)
+                        ? 'Linux'
+                        : '';
+    return os ? `${browser} on ${os}` : browser;
 }
-
-const isMobile = (ua: string | null) => !!ua && /Android|iPhone|iPad|Mobile/.test(ua)
+const isMobile = (ua) => !!ua && /Android|iPhone|iPad|Mobile/.test(ua);
 </script>
 
 <template>

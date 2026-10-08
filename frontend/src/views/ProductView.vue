@@ -1,72 +1,63 @@
-<script setup lang="ts">
-import { computed, ref, watch } from 'vue'
-import { useRoute } from 'vue-router'
-import { BadgeCheck, GitCompareArrows, PackageX, RotateCcw, ShieldCheck, Undo2 } from '@lucide/vue'
-import ZBreadcrumbs from '@/components/ui/ZBreadcrumbs.vue'
-import ZBadge from '@/components/ui/ZBadge.vue'
-import ZPrice from '@/components/ui/ZPrice.vue'
-import ZRatingStars from '@/components/ui/ZRatingStars.vue'
-import ZEmptyState from '@/components/ui/ZEmptyState.vue'
-import ZErrorState from '@/components/ui/ZErrorState.vue'
-import ProductGallery from '@/components/product/ProductGallery.vue'
-import VariantSelector from '@/components/product/VariantSelector.vue'
-import DeliveryEstimator from '@/components/product/DeliveryEstimator.vue'
-import SpecTable from '@/components/product/SpecTable.vue'
-import SellerCard from '@/components/product/SellerCard.vue'
-import PurchasePanel from '@/components/product/PurchasePanel.vue'
-import { catalogApi } from '@/services/catalog'
-import { isStatus } from '@/services/errors'
-import { useAsync } from '@/composables/useAsync'
-import { useCompareStore, COMPARE_LIMIT } from '@/stores/compare'
-import { useToastStore } from '@/stores/toast'
-import { findVariant, initialSelection, type Selection } from '@/utils/variants'
-import { formatCompact } from '@/utils/format'
-import type { ProductDetail } from '@/types/catalog'
-
-const route = useRoute()
-const compare = useCompareStore()
-const toast = useToastStore()
-
-const slug = computed(() => String(route.params.slug))
-const { data: product, loading, error, execute } = useAsync((s: string) => catalogApi.product(s))
-const selection = ref<Selection>({})
-
-watch(
-  slug,
-  async (s) => {
-    const p = await execute(s)
+<script setup>
+import { computed, ref, watch } from 'vue';
+import { useRoute } from 'vue-router';
+import { BadgeCheck, GitCompareArrows, PackageX, RotateCcw, ShieldCheck, Undo2 } from '@lucide/vue';
+import ZBreadcrumbs from '@/components/ui/ZBreadcrumbs.vue';
+import ZBadge from '@/components/ui/ZBadge.vue';
+import ZPrice from '@/components/ui/ZPrice.vue';
+import ZRatingStars from '@/components/ui/ZRatingStars.vue';
+import ZEmptyState from '@/components/ui/ZEmptyState.vue';
+import ZErrorState from '@/components/ui/ZErrorState.vue';
+import ProductGallery from '@/components/product/ProductGallery.vue';
+import VariantSelector from '@/components/product/VariantSelector.vue';
+import DeliveryEstimator from '@/components/product/DeliveryEstimator.vue';
+import SpecTable from '@/components/product/SpecTable.vue';
+import SellerCard from '@/components/product/SellerCard.vue';
+import PurchasePanel from '@/components/product/PurchasePanel.vue';
+import { catalogApi } from '@/services/catalog';
+import { isStatus } from '@/services/errors';
+import { useAsync } from '@/composables/useAsync';
+import { useCompareStore, COMPARE_LIMIT } from '@/stores/compare';
+import { useToastStore } from '@/stores/toast';
+import { findVariant, initialSelection } from '@/utils/variants';
+import { formatCompact } from '@/utils/format';
+const route = useRoute();
+const compare = useCompareStore();
+const toast = useToastStore();
+const slug = computed(() => String(route.params.slug));
+const { data: product, loading, error, execute } = useAsync((s) => catalogApi.product(s));
+const selection = ref({});
+watch(slug, async (s) => {
+    const p = await execute(s);
     if (p) {
-      selection.value = initialSelection(p.variants, Number(route.query.variant) || p.defaultVariantId)
-      document.title = `${p.title} | Zovira`
+        selection.value = initialSelection(p.variants, Number(route.query.variant) || p.defaultVariantId);
+        document.title = `${p.title} | Zovira`;
     }
-  },
-  { immediate: true },
-)
-
-const variant = computed(() => (product.value ? findVariant(product.value.variants, selection.value) : null))
-
+}, { immediate: true });
+const variant = computed(() => (product.value ? findVariant(product.value.variants, selection.value) : null));
 /** Colour-specific photos when the chosen colour has them, otherwise the shared gallery. */
 const images = computed(() => {
-  const p = product.value
-  if (!p) return []
-  const colour = selection.value['Colour']
-  if (!colour) return p.images
-  const variantColour = new Map(p.variants.map((v) => [v.id, v.options['Colour']]))
-  const own = p.images.filter((i) => i.variantId && variantColour.get(i.variantId) === colour)
-  return own.length ? own : p.images.filter((i) => !i.variantId)
-})
-
-const paragraphs = computed(() => (product.value?.description ?? '').split(/\n{2,}/).filter(Boolean))
-const unavailable = computed(() => product.value?.status === 'INACTIVE')
-
-function toggleCompare(p: ProductDetail) {
-  const ok = compare.toggle({
-    slug: p.slug,
-    title: p.title,
-    imageUrl: p.images[0]?.url ?? null,
-    categorySlug: p.category.slug,
-  })
-  if (!ok) toast.warning('Compare list is full', `You can compare up to ${COMPARE_LIMIT} products.`)
+    const p = product.value;
+    if (!p)
+        return [];
+    const colour = selection.value['Colour'];
+    if (!colour)
+        return p.images;
+    const variantColour = new Map(p.variants.map((v) => [v.id, v.options['Colour']]));
+    const own = p.images.filter((i) => i.variantId && variantColour.get(i.variantId) === colour);
+    return own.length ? own : p.images.filter((i) => !i.variantId);
+});
+const paragraphs = computed(() => (product.value?.description ?? '').split(/\n{2,}/).filter(Boolean));
+const unavailable = computed(() => product.value?.status === 'INACTIVE');
+function toggleCompare(p) {
+    const ok = compare.toggle({
+        slug: p.slug,
+        title: p.title,
+        imageUrl: p.images[0]?.url ?? null,
+        categorySlug: p.category.slug,
+    });
+    if (!ok)
+        toast.warning('Compare list is full', `You can compare up to ${COMPARE_LIMIT} products.`);
 }
 </script>
 

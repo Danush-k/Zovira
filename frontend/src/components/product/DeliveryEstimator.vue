@@ -1,43 +1,38 @@
-<script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
-import { Banknote, MapPin, Truck, Zap } from '@lucide/vue'
-import ZSpinner from '@/components/ui/ZSpinner.vue'
-import { useLocationStore } from '@/stores/location'
-import { errorMessage } from '@/services/errors'
-import { formatDate, formatPrice } from '@/utils/format'
-import { isValidPincode } from '@/utils/india'
-
-const props = defineProps<{ codAvailable: boolean; price: number }>()
-
-const location = useLocationStore()
-const editing = ref(!location.pincode)
-const input = ref(location.pincode ?? '')
-const error = ref<string | null>(null)
-
-onMounted(() => void location.refresh())
-
-const estimate = computed(() => location.estimate)
-const freeStandard = computed(
-  () => !!estimate.value?.standard?.freeAbove && props.price >= estimate.value.standard.freeAbove,
-)
-
+<script setup>
+import { computed, onMounted, ref } from 'vue';
+import { Banknote, MapPin, Truck, Zap } from '@lucide/vue';
+import ZSpinner from '@/components/ui/ZSpinner.vue';
+import { useLocationStore } from '@/stores/location';
+import { errorMessage } from '@/services/errors';
+import { formatDate, formatPrice } from '@/utils/format';
+import { isValidPincode } from '@/utils/india';
+const props = defineProps({
+    codAvailable: { type: Boolean, default: false },
+    price: null
+});
+const location = useLocationStore();
+const editing = ref(!location.pincode);
+const input = ref(location.pincode ?? '');
+const error = ref(null);
+onMounted(() => void location.refresh());
+const estimate = computed(() => location.estimate);
+const freeStandard = computed(() => !!estimate.value?.standard?.freeAbove && props.price >= estimate.value.standard.freeAbove);
 async function check() {
-  error.value = null
-  const value = input.value.trim()
-  if (!isValidPincode(value)) {
-    error.value = 'Enter a valid 6-digit PIN code'
-    return
-  }
-  try {
-    await location.setPincode(value)
-    editing.value = false
-  } catch (e) {
-    error.value = errorMessage(e)
-  }
+    error.value = null;
+    const value = input.value.trim();
+    if (!isValidPincode(value)) {
+        error.value = 'Enter a valid 6-digit PIN code';
+        return;
+    }
+    try {
+        await location.setPincode(value);
+        editing.value = false;
+    }
+    catch (e) {
+        error.value = errorMessage(e);
+    }
 }
-
-const deliveryDay = (iso: string | null | undefined) =>
-  iso ? formatDate(iso, { weekday: 'long', day: 'numeric', month: 'short' }) : ''
+const deliveryDay = (iso) => iso ? formatDate(iso, { weekday: 'long', day: 'numeric', month: 'short' }) : '';
 </script>
 
 <template>

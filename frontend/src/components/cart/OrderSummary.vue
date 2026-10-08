@@ -1,9 +1,11 @@
-<script setup lang="ts">
-import ZBadge from '@/components/ui/ZBadge.vue'
-import type { CartSummary } from '@/types/cart'
-import { formatPrice } from '@/utils/format'
-
-defineProps<{ summary: CartSummary; codFee?: number; title?: string }>()
+<script setup>
+import ZBadge from '@/components/ui/ZBadge.vue';
+import { formatPrice } from '@/utils/format';
+defineProps({
+    summary: null,
+    codFee: null,
+    title: null
+});
 </script>
 
 <template>

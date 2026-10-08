@@ -1,89 +1,88 @@
-<script setup lang="ts">
-import { ref, watch } from 'vue'
-import { Package, Truck } from '@lucide/vue'
-import ZButton from '@/components/ui/ZButton.vue'
-import ZDialog from '@/components/ui/ZDialog.vue'
-import ZInput from '@/components/ui/ZInput.vue'
-import ZTabs from '@/components/ui/ZTabs.vue'
-import ZEmptyState from '@/components/ui/ZEmptyState.vue'
-import ZErrorState from '@/components/ui/ZErrorState.vue'
-import ZPagination from '@/components/ui/ZPagination.vue'
-import FormAlert from '@/components/auth/FormAlert.vue'
-import OrderStatusBadge from '@/components/order/OrderStatusBadge.vue'
-import { sellerApi } from '@/services/seller'
-import { errorMessage } from '@/services/errors'
-import { useAsync } from '@/composables/useAsync'
-import { useToastStore } from '@/stores/toast'
-import { formatDate, formatPrice } from '@/utils/format'
-import type { SellerOrderRow } from '@/types/seller'
-
-const filter = ref('open')
-const page = ref(0)
-const toast = useToastStore()
-const { data, loading, error, execute } = useAsync((f: string, p: number) => sellerApi.orders(f, p))
-watch([filter, page], () => void execute(filter.value, page.value), { immediate: true })
-watch(filter, () => (page.value = 0))
-
+<script setup>
+import { ref, watch } from 'vue';
+import { Package, Truck } from '@lucide/vue';
+import ZButton from '@/components/ui/ZButton.vue';
+import ZDialog from '@/components/ui/ZDialog.vue';
+import ZInput from '@/components/ui/ZInput.vue';
+import ZTabs from '@/components/ui/ZTabs.vue';
+import ZEmptyState from '@/components/ui/ZEmptyState.vue';
+import ZErrorState from '@/components/ui/ZErrorState.vue';
+import ZPagination from '@/components/ui/ZPagination.vue';
+import FormAlert from '@/components/auth/FormAlert.vue';
+import OrderStatusBadge from '@/components/order/OrderStatusBadge.vue';
+import { sellerApi } from '@/services/seller';
+import { errorMessage } from '@/services/errors';
+import { useAsync } from '@/composables/useAsync';
+import { useToastStore } from '@/stores/toast';
+import { formatDate, formatPrice } from '@/utils/format';
+const filter = ref('open');
+const page = ref(0);
+const toast = useToastStore();
+const { data, loading, error, execute } = useAsync((f, p) => sellerApi.orders(f, p));
+watch([filter, page], () => void execute(filter.value, page.value), { immediate: true });
+watch(filter, () => (page.value = 0));
 const tabs = [
-  { value: 'open', label: 'To fulfil' },
-  { value: 'shipped', label: 'In transit' },
-  { value: 'delivered', label: 'Delivered' },
-  { value: 'all', label: 'All' },
-]
-
-const shipDialog = ref(false)
-const target = ref<SellerOrderRow | null>(null)
-const ship = ref({ carrier: '', trackingNumber: '' })
-const shipError = ref<string | null>(null)
-const busy = ref<number | null>(null)
-
-const NEXT: Record<string, { status: string; label: string }> = {
-  PENDING: { status: 'PROCESSING', label: 'Start preparing' },
-  PROCESSING: { status: 'SHIPPED', label: 'Mark as shipped' },
-  SHIPPED: { status: 'OUT_FOR_DELIVERY', label: 'Out for delivery' },
-  OUT_FOR_DELIVERY: { status: 'DELIVERED', label: 'Mark as delivered' },
+    { value: 'open', label: 'To fulfil' },
+    { value: 'shipped', label: 'In transit' },
+    { value: 'delivered', label: 'Delivered' },
+    { value: 'all', label: 'All' },
+];
+const shipDialog = ref(false);
+const target = ref(null);
+const ship = ref({ carrier: '', trackingNumber: '' });
+const shipError = ref(null);
+const busy = ref(null);
+const NEXT = {
+    PENDING: { status: 'PROCESSING', label: 'Start preparing' },
+    PROCESSING: { status: 'SHIPPED', label: 'Mark as shipped' },
+    SHIPPED: { status: 'OUT_FOR_DELIVERY', label: 'Out for delivery' },
+    OUT_FOR_DELIVERY: { status: 'DELIVERED', label: 'Mark as delivered' },
+};
+async function advance(row) {
+    const next = NEXT[row.status];
+    if (!next)
+        return;
+    if (next.status === 'SHIPPED') {
+        target.value = row;
+        ship.value = { carrier: row.carrier ?? '', trackingNumber: row.trackingNumber ?? '' };
+        shipError.value = null;
+        shipDialog.value = true;
+        return;
+    }
+    busy.value = row.shipmentId;
+    try {
+        await sellerApi.updateShipment(row.shipmentId, { status: next.status });
+        await execute(filter.value, page.value);
+        toast.success('Shipment updated');
+    }
+    catch (e) {
+        toast.error("Couldn't update the shipment", errorMessage(e));
+    }
+    finally {
+        busy.value = null;
+    }
 }
-
-async function advance(row: SellerOrderRow) {
-  const next = NEXT[row.status]
-  if (!next) return
-  if (next.status === 'SHIPPED') {
-    target.value = row
-    ship.value = { carrier: row.carrier ?? '', trackingNumber: row.trackingNumber ?? '' }
-    shipError.value = null
-    shipDialog.value = true
-    return
-  }
-  busy.value = row.shipmentId
-  try {
-    await sellerApi.updateShipment(row.shipmentId, { status: next.status })
-    await execute(filter.value, page.value)
-    toast.success('Shipment updated')
-  } catch (e) {
-    toast.error("Couldn't update the shipment", errorMessage(e))
-  } finally {
-    busy.value = null
-  }
-}
-
 async function confirmShip() {
-  if (!target.value) return
-  shipError.value = null
-  if (!ship.value.carrier.trim() || !ship.value.trackingNumber.trim()) {
-    shipError.value = 'Enter the carrier and tracking number'
-    return
-  }
-  busy.value = target.value.shipmentId
-  try {
-    await sellerApi.updateShipment(target.value.shipmentId, { status: 'SHIPPED', ...ship.value })
-    shipDialog.value = false
-    await execute(filter.value, page.value)
-    toast.success('Marked as shipped', 'The customer can now track the package.')
-  } catch (e) {
-    shipError.value = errorMessage(e)
-  } finally {
-    busy.value = null
-  }
+    if (!target.value)
+        return;
+    shipError.value = null;
+    if (!ship.value.carrier.trim() || !ship.value.trackingNumber.trim()) {
+        shipError.value = 'Enter the carrier and tracking number';
+        return;
+    }
+    busy.value = target.value.shipmentId;
+    try {
+        await sellerApi.updateShipment(target.value.shipmentId, { status: 'SHIPPED', ...ship.value });
+        shipDialog.value = false;
+        await execute(filter.value, page.value);
+        toast.success('Marked as shipped', 'The customer can now track the package.');
+    }
+    catch (e) {
+        shipError.value = errorMessage(e);
+    }
+    finally {
+        busy.value = null;
+    }
 }
 </script>
 
@@ -122,7 +121,7 @@ async function confirmShip() {
             <p v-if="row.trackingNumber" class="text-ink-600">{{ row.carrier }} <span class="font-mono">{{ row.trackingNumber }}</span></p>
             <p v-if="row.estimatedDeliveryDate" class="text-ink-500">Deliver by {{ formatDate(row.estimatedDeliveryDate) }}</p>
             <ZButton v-if="NEXT[row.status]" size="sm" class="mt-2" :loading="busy === row.shipmentId" @click="advance(row)">
-              <Truck class="size-4" /> {{ NEXT[row.status]!.label }}
+              <Truck class="size-4" /> {{ NEXT[row.status]?.label }}
             </ZButton>
           </div>
         </div>
