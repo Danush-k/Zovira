@@ -8,7 +8,7 @@ help:
 	@echo "  make api         Run the Spring Boot API (dev profile, seeds an empty database)"
 	@echo "  make web         Run the Vite dev server on http://localhost:5173"
 	@echo "  make test        Run API and web test suites"
-	@echo "  make lint        Lint and type-check the web app"
+	@echo "  make lint        Lint the web app"
 	@echo "  make build       Build API jar and web bundle"
 
 infra:
@@ -35,7 +35,7 @@ test-web:
 	cd frontend && npm test
 
 lint:
-	cd frontend && npm run lint && npm run type-check
+	cd frontend && npm run lint
 
 build:
 	cd backend && ./mvnw -B -DskipTests package

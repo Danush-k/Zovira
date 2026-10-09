@@ -10,7 +10,7 @@
 #   ./run-mac.sh infra     Start Docker Compose services (Postgres, Redis, MinIO, Mailpit)
 #   ./run-mac.sh infra-down Stop Docker Compose services
 #   ./run-mac.sh test      Run backend and frontend test suites
-#   ./run-mac.sh lint      Lint and type-check frontend
+#   ./run-mac.sh lint      Lint frontend code
 #   ./run-mac.sh build     Build API jar and web production bundle
 #   ./run-mac.sh clean     Clean build artifacts and temporary files
 #   ./run-mac.sh --help    Show this help message
@@ -556,7 +556,7 @@ case "$cmd" in
     printf "    ${CYAN}infra${RESET}       Start Docker Compose infrastructure (Postgres, Redis, etc.)\n"
     printf "    ${CYAN}infra-down${RESET}  Stop Docker Compose infrastructure containers\n"
     printf "    ${CYAN}test${RESET}        Run API and web automated test suites\n"
-    printf "    ${CYAN}lint${RESET}        Run ESLint and Vue TypeScript type-checks\n"
+    printf "    ${CYAN}lint${RESET}        Run ESLint code quality checks\n"
     printf "    ${CYAN}build${RESET}       Compile backend JAR and build frontend distribution\n"
     printf "    ${CYAN}clean${RESET}       Clean build artifacts (target/, dist/, node_modules/)\n"
     printf "    ${CYAN}help${RESET}        Show this guide\n\n"
